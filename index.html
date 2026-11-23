@@ -59,6 +59,9 @@
         <button type="button" data-step-btn="4" class="step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900">
           4. Черновые материалы
         </button>
+        <button type="button" data-step-btn="5" class="step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-amber-800 hover:text-amber-950">
+          5. Выплаты работникам
+        </button>
       </nav>
 
       <!-- Кнопка управления ценами и картинками -->
@@ -165,9 +168,9 @@
               <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
                 <th class="py-3 px-4">Наименование работы</th>
                 <th class="py-3 px-3 w-20 text-center">Ед.</th>
-                <th class="py-3 px-3 w-32 text-right">Объём</th>
-                <th class="py-3 px-3 w-36 text-right">Цена, ₽</th>
-                <th class="py-3 px-4 w-36 text-right">Сумма, ₽</th>
+                <th class="py-3 px-3 w-28 text-right">Объём</th>
+                <th class="py-3 px-3 w-32 text-right">Цена сметы, ₽</th>
+                <th class="py-3 px-4 w-36 text-right">Сумма сметы, ₽</th>
               </tr>
             </thead>
             <tbody id="worksTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
@@ -217,7 +220,7 @@
 
         <div class="flex flex-wrap items-center gap-6">
           <div class="text-right">
-            <div class="text-xs text-slate-500">Работы</div>
+            <div class="text-xs text-slate-500">Работы (смета)</div>
             <div id="step2WorksTotal" class="text-base font-bold text-slate-900">0 ₽</div>
           </div>
           <div class="text-right">
@@ -262,9 +265,22 @@
         <!-- Карточка для клиента -->
         <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-5">
           <div class="border-b border-slate-100 pb-4">
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-              Для заказчика
-            </span>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                Для заказчика
+              </span>
+              <div class="flex flex-wrap items-center gap-1.5 no-print">
+                <button id="downloadClientHtmlBtn" type="button" class="px-3 py-1.5 rounded-lg bg-[#4d5d39] hover:bg-[#3c492c] text-white text-xs font-semibold shadow-xs transition">
+                  Скачать смету (HTML)
+                </button>
+                <button id="downloadClientCsvBtn" type="button" class="px-3 py-1.5 rounded-lg border border-[#b9c2a8] bg-[#f4f6ef] hover:bg-[#e8ede0] text-[#354026] text-xs font-semibold transition">
+                  Скачать CSV
+                </button>
+                <button id="downloadClientTxtBtn" type="button" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-600 transition">
+                  TXT
+                </button>
+              </div>
+            </div>
             <h3 class="text-xl font-bold text-slate-900 mt-3">Коммерческое предложение на ремонт</h3>
             <p id="clientSummaryMeta" class="text-sm text-slate-500 mt-1"></p>
           </div>
@@ -390,6 +406,138 @@
           <button id="goToStep3WithRoughBtn" type="button" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold shadow-sm transition">
             Обновить итоговый наряд →
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ОТДЕЛЬНАЯ ВКЛАДКА 5: Расценки и выплаты работникам (скрыта от клиента при заполнении сметы) -->
+    <section id="step5WorkersSection" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-amber-200 p-5 sm:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-full">
+            Внутренняя вкладка · Не отображается клиенту
+          </span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">Стоимость работ для работников</h2>
+          <p id="workersTariffSubtitle" class="text-sm text-slate-500 mt-1">
+            Укажите ставку за единицу работы для работников (₽/ед.) — общая сумма за объём пересчитается автоматически.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2">
+            <label for="workerSharePercentInput" class="text-xs font-semibold text-amber-900 whitespace-nowrap">Доля от сметы, %:</label>
+            <input id="workerSharePercentInput" type="number" min="0" max="100" step="1" value="65"
+              class="w-16 text-right rounded-lg border border-amber-300 bg-white px-2 py-1 text-xs sm:text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <button id="applyWorkerShareBtn" type="button" class="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold transition">
+              Пересчитать по %
+            </button>
+          </div>
+          <button id="backFromWorkersBtn" type="button" class="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs sm:text-sm font-semibold text-slate-700 transition">
+            ← Вернуться к смете
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="font-bold text-slate-900 text-base">Ведомость выплат работникам по объёмам</h3>
+          <div class="flex flex-wrap items-center gap-2 no-print">
+            <span id="workersItemsCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200"></span>
+            <button id="downloadWorkersHtmlBtn" type="button" class="px-3 py-1.5 rounded-lg bg-[#4d5d39] hover:bg-[#3c492c] text-white text-xs font-semibold shadow-xs transition">
+              Скачать ведомость (HTML)
+            </button>
+            <button id="downloadWorkersCsvBtn" type="button" class="px-3 py-1.5 rounded-lg border border-[#b9c2a8] bg-[#f4f6ef] hover:bg-[#e8ede0] text-[#354026] text-xs font-semibold transition">
+              Скачать CSV
+            </button>
+            <button id="downloadWorkersTxtBtn" type="button" class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-medium text-slate-600 transition">
+              TXT
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[760px]">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                <th class="py-3 px-4">Наименование работы</th>
+                <th class="py-3 px-3 w-20 text-center">Ед.</th>
+                <th class="py-3 px-3 w-28 text-right">Объём</th>
+                <th class="py-3 px-3 w-36 text-right text-amber-900 bg-amber-50/60">Цена за ед., ₽</th>
+                <th class="py-3 px-4 w-40 text-right text-amber-950 bg-amber-50">Сумма за объём, ₽</th>
+              </tr>
+            </thead>
+            <tbody id="workersPayTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div class="text-xs sm:text-sm text-slate-600">
+          Сумма для работников рассчитывается как <strong class="text-slate-900">Цена за ед. × Объём</strong> по каждой позиции.
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Основная смета работникам</div>
+            <div id="workersGrandTotalDisplay" class="text-base font-bold text-amber-900">0 ₽</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-amber-800 font-semibold">Доп. смета работникам</div>
+            <div id="workersExtraTotalDisplay" class="text-base font-bold text-amber-900">0 ₽</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-amber-900 font-bold">Итого к выплате работникам</div>
+            <div id="workersCombinedTotalDisplay" class="text-xl font-extrabold text-amber-950">0 ₽</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Дополнительная смета для работников -->
+      <div class="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-amber-100 bg-amber-50/40 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Дополнительная смета для работников</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Дополнительные работы или доплаты исполнителям с расчётом за единицу и за весь объём.</p>
+          </div>
+          <div class="flex items-center gap-2 no-print">
+            <span id="workerExtraCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-200">0 позиций</span>
+            <button id="copyWorkerExtraEstimateBtn" type="button" class="px-3.5 py-2 rounded-xl bg-amber-800 hover:bg-amber-900 text-white text-xs font-semibold transition">
+              Скопировать доп. смету
+            </button>
+          </div>
+        </div>
+
+        <div class="p-5 border-b border-slate-100 bg-slate-50/60 no-print">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <input id="newWorkerExtraNameInput" type="text" placeholder="Наименование доп. работы для работников"
+              class="lg:col-span-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <input id="newWorkerExtraUnitInput" type="text" placeholder="Ед. (м², шт., м.п.)" value="шт."
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <input id="newWorkerExtraQtyInput" type="number" min="0" step="0.1" placeholder="Объём" value="1"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <div class="flex gap-2">
+              <input id="newWorkerExtraUnitPriceInput" type="number" min="0" step="10" placeholder="Цена за ед., ₽" value="1000"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              <button id="addWorkerExtraItemBtn" type="button"
+                class="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs sm:text-sm font-semibold shrink-0 transition">
+                Добавить
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[760px]">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                <th class="py-3 px-4">Наименование доп. работы</th>
+                <th class="py-3 px-3 w-20 text-center">Ед.</th>
+                <th class="py-3 px-3 w-28 text-right">Объём</th>
+                <th class="py-3 px-3 w-36 text-right text-amber-900 bg-amber-50/60">Цена за ед., ₽</th>
+                <th class="py-3 px-4 w-40 text-right text-amber-950 bg-amber-50">Сумма за объём, ₽</th>
+                <th class="py-3 px-3 w-16 text-center no-print"></th>
+              </tr>
+            </thead>
+            <tbody id="workerExtraTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -1546,7 +1694,9 @@
         doorsCount: 5
       },
       tariffId: 'comfort',
+      workerPayShare: 0.65,
       works: [],
+      workerExtraItems: [],
       roughMaterials: [],
       includeRoughInGrandTotal: true,
       selectedMaterials: {
@@ -1791,15 +1941,20 @@
     function applyWorkCatalogForTariff(tariffId, showNotification = false) {
       const plan = TARIFF_WORK_PLANS[tariffId] || TARIFF_WORK_PLANS.standard;
       const v = calcAreasAndVolumes();
+      const share = Number(state.workerPayShare) || 0.65;
       state.works = plan.map((item, idx) => {
         const qty = round1(Number(v[item.qtyFactor] ?? v.totalArea));
+        const price = Number(item.price) || 0;
+        const workerUnitPrice = Math.round(price * share);
         return {
           id: `${tariffId}-w-${idx}`,
           section: item.section,
           name: item.name,
           unit: item.unit,
           qty: qty,
-          price: Number(item.price) || 0
+          price: price,
+          workerUnitPrice: workerUnitPrice,
+          workerAmount: Math.round(qty * workerUnitPrice)
         };
       });
       if (showNotification) {
@@ -1807,144 +1962,35 @@
       }
     }
 
-    function buildRoughMaterialsFromParams(preserveCustomRows = true) {
-      const v = calcAreasAndVolumes();
-      const generated = ROUGH_MATERIAL_TEMPLATES.map((tpl) => {
-        const rawQty = Number(v[tpl.qtyFactor] ?? 1);
-        const qty = tpl.unit === 'м²' || tpl.unit === 'м.п.' ? round1(rawQty) : Math.max(1, Math.round(rawQty));
-        return {
-          id: tpl.id,
-          name: tpl.name,
-          unit: tpl.unit,
-          qty,
-          price: Number(tpl.price) || 0,
-          isCustom: false
-        };
+    function recalculateWorkersPayFromWorks() {
+      const share = Number(state.workerPayShare) || 0.65;
+      (state.works || []).forEach((w) => {
+        const qty = Number(w.qty) || 0;
+        const price = Number(w.price) || 0;
+        const unitRate = Math.round(price * share);
+        w.workerUnitPrice = unitRate;
+        w.workerAmount = Math.round(qty * unitRate);
       });
-
-      const customRows = preserveCustomRows
-        ? (state.roughMaterials || []).filter((r) => r.isCustom)
-        : [];
-
-      state.roughMaterials = [...generated, ...customRows];
     }
 
-    function calcRoughTotal() {
-      return (state.roughMaterials || []).reduce(
-        (acc, item) => acc + (Number(item.qty) || 0) * (Number(item.price) || 0),
-        0
-      );
-    }
-
-    function getAllItemsInCategory(categoryKey) {
-      const baseList = Array.isArray(state.materialCatalog[categoryKey]) ? state.materialCatalog[categoryKey] : [];
-      const customList = (state.customMaterials || []).filter((m) => m.category === categoryKey);
-      return [...baseList, ...customList];
-    }
-
-    function findMaterialById(id) {
-      if (!id) return null;
-      for (const catKey of Object.keys(state.materialCatalog || {})) {
-        const found = (state.materialCatalog[catKey] || []).find((m) => m.id === id);
-        if (found) return found;
+    function getWorkerUnitPrice(work) {
+      if (!work) return 0;
+      if (typeof work.workerUnitPrice === 'number' && Number.isFinite(work.workerUnitPrice)) {
+        return work.workerUnitPrice;
       }
-      return (state.customMaterials || []).find((m) => m.id === id) || null;
+      const share = Number(state.workerPayShare) || 0.65;
+      const qty = Number(work.qty) || 0;
+      if (typeof work.workerAmount === 'number' && Number.isFinite(work.workerAmount) && qty > 0) {
+        return Math.round(work.workerAmount / qty);
+      }
+      return Math.round((Number(work.price) || 0) * share);
     }
 
-    function getSelectedMaterialsList() {
-      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
-      const list = [];
-
-      const floorCat = state.flooringCategory || 'quartz_vinyl';
-      const floorItem = findMaterialById(state.selectedMaterials.flooring) || getAllItemsInCategory(floorCat)[0];
-      if (floorItem) {
-        const qty = calcMaterialQtyByMode(floorItem.qtyMode || 'dryFloor');
-        list.push({ slotLabel: 'Напольное покрытие (жилые зоны)', item: floorItem, qty, total: qty * floorItem.price });
-      }
-
-      if (state.tariffId === 'standard' || state.tariffId === 'comfort') {
-        const wpItem = findMaterialById(state.selectedMaterials.wallCovering) || getAllItemsInCategory('wallpapers')[0];
-        if (wpItem) {
-          const qty = calcMaterialQtyByMode('walls');
-          list.push({ slotLabel: 'Обои на стены', item: wpItem, qty, total: qty * wpItem.price });
-        }
-      } else {
-        const wallsQty = calcMaterialQtyByMode('walls');
-        list.push({
-          slotLabel: `Краска ${state.paint.brand} (${state.paint.ralCode} — ${state.paint.ralName})`,
-          item: {
-            id: 'paint-dulux',
-            sku: state.paint.ralCode,
-            name: `${state.paint.brand} · ${state.paint.ralCode}`,
-            spec: state.paint.ralName,
-            unit: 'м²',
-            price: Number(state.paint.pricePerM2) || 0,
-            hex: state.paint.hex
-          },
-          qty: wallsQty,
-          total: wallsQty * (Number(state.paint.pricePerM2) || 0)
-        });
-      }
-
-      (tariff.tileZones || []).forEach((zoneKey) => {
-        const matId = state.selectedMaterials['tile_' + zoneKey];
-        const kgItem = findMaterialById(matId) || getAllItemsInCategory('porcelain_600x1200')[0];
-        if (kgItem) {
-          const modeMap = {
-            floor: 'wetFloor',
-            walls: 'wetWallsMain',
-            accent: 'accentWall',
-            hallway: 'hallwayFloor',
-            entrance: 'entranceFloor'
-          };
-          const qty = calcMaterialQtyByMode(modeMap[zoneKey] || 'wetFloor');
-          list.push({ slotLabel: TILE_ZONE_LABELS[zoneKey] || 'Керамогранит 600×1200', item: kgItem, qty, total: qty * kgItem.price });
-        }
-      });
-
-      const bathItem = findMaterialById(state.selectedMaterials.bathtub) || getAllItemsInCategory('bathtubs')[0];
-      if (bathItem) {
-        const qty = calcMaterialQtyByMode('bathrooms');
-        list.push({ slotLabel: 'Ванна', item: bathItem, qty, total: qty * bathItem.price });
-      }
-
-      const toiletItem = findMaterialById(state.selectedMaterials.toilet) || getAllItemsInCategory('toilets')[0];
-      if (toiletItem) {
-        const qty = calcMaterialQtyByMode('bathrooms');
-        list.push({ slotLabel: 'Унитаз с инсталляцией', item: toiletItem, qty, total: qty * toiletItem.price });
-      }
-
-      return list;
-    }
-
-    function calcTotals() {
-      const worksTotal = (state.works || []).reduce((acc, w) => acc + (Number(w.qty) || 0) * (Number(w.price) || 0), 0);
-      const selectedMats = getSelectedMaterialsList();
-      const materialsTotal = selectedMats.reduce((acc, m) => acc + (Number(m.total) || 0), 0);
-      const roughTotal = calcRoughTotal();
-      const grandTotal = worksTotal + materialsTotal + (state.includeRoughInGrandTotal ? roughTotal : 0);
-      return {
-        worksTotal,
-        materialsTotal,
-        roughTotal,
-        grandTotal,
-        selectedMats
-      };
-    }
-
-    function syncParamInputsFromState() {
-      const map = {
-        paramTotalArea: state.params.totalArea,
-        paramLivingArea: state.params.livingArea,
-        paramRoomsCount: state.params.roomsCount,
-        paramBathroomsCount: state.params.bathroomsCount,
-        paramCeilingHeight: state.params.ceilingHeight,
-        paramDoorsCount: state.params.doorsCount
-      };
-      Object.entries(map).forEach(([id, val]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = val;
-      });
+    function getWorkerLineTotal(work) {
+      if (!work) return 0;
+      const qty = Number(work.qty) || 0;
+      const unitRate = getWorkerUnitPrice(work);
+      return Math.round(qty * unitRate);
     }
 
     function renderStep1() {
@@ -1967,19 +2013,231 @@
                 <span class="text-sm font-bold text-slate-900">от ${formatRub(t.baseRatePerM2)}/м²</span>
               </div>
               <h4 class="text-lg font-bold text-slate-900 mt-3">${t.name}</h4>
-              <p class="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed">${t.description}</p>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold ${
-              active ? 'text-indigo-700' : 'text-slate-400'
-            }">
-              ${active ? '✓ Выбран этот пакет' : 'Выбрать пакет'}
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${t.description}</p>
             </div>
           </button>
         `;
       }).join('');
 
       const labelEl = document.getElementById('selectedTariffLabel');
-      if (labelEl) labelEl.textContent = TARIFFS[state.tariffId]?.name || '';
+      if (labelEl) {
+        labelEl.textContent = TARIFFS[state.tariffId]?.name || 'Комфорт';
+      }
+    }
+
+    function getAllItemsInCategory(categoryKey) {
+      const baseItems = Array.isArray(state.materialCatalog?.[categoryKey])
+        ? state.materialCatalog[categoryKey]
+        : [];
+      const extraItems = Array.isArray(state.customMaterials)
+        ? state.customMaterials.filter((item) => item && item.category === categoryKey)
+        : [];
+      return [...baseItems, ...extraItems];
+    }
+
+    function findMaterialById(matId) {
+      if (!matId) return null;
+      const allCats = Object.keys(state.materialCatalog || {});
+      for (const catKey of allCats) {
+        const list = state.materialCatalog[catKey] || [];
+        const found = list.find((item) => item && item.id === matId);
+        if (found) return found;
+      }
+      if (Array.isArray(state.customMaterials)) {
+        const foundCustom = state.customMaterials.find((item) => item && item.id === matId);
+        if (foundCustom) return foundCustom;
+      }
+      return null;
+    }
+
+    function buildRoughMaterialsFromParams(preserveCustom = true) {
+      const v = calcAreasAndVolumes();
+      const customItems = preserveCustom && Array.isArray(state.roughMaterials)
+        ? state.roughMaterials.filter((item) => item && item.isCustom)
+        : [];
+
+      const generated = ROUGH_MATERIAL_TEMPLATES.map((tpl) => {
+        const rawQty = Number(v[tpl.qtyFactor] ?? 1) || 0;
+        const qty = round1(Math.max(0, rawQty));
+        const price = Math.max(0, Math.round(Number(tpl.price) || 0));
+        return {
+          id: tpl.id,
+          name: tpl.name,
+          unit: tpl.unit,
+          qty,
+          price,
+          isCustom: false
+        };
+      });
+
+      state.roughMaterials = [...generated, ...customItems];
+    }
+
+    function calcRoughTotal() {
+      return (state.roughMaterials || []).reduce(
+        (acc, item) => acc + (Number(item.qty) || 0) * (Number(item.price) || 0),
+        0
+      );
+    }
+
+    function calcWorkerExtraTotal() {
+      return (state.workerExtraItems || []).reduce(
+        (acc, item) => acc + Math.round((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)),
+        0
+      );
+    }
+
+    function getSelectedMaterialsList() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const result = [];
+
+      const activeFloorCat = state.flooringCategory || 'quartz_vinyl';
+      const floorItems = getAllItemsInCategory(activeFloorCat);
+      const selectedFloor = findMaterialById(state.selectedMaterials.flooring) || floorItems[0];
+      if (selectedFloor) {
+        const qty = calcMaterialQtyByMode(selectedFloor.qtyMode || 'dryFloor');
+        const price = Number(selectedFloor.price) || 0;
+        result.push({
+          slotKey: 'flooring',
+          slotLabel: 'Напольное покрытие',
+          item: selectedFloor,
+          qty,
+          price,
+          total: qty * price
+        });
+      }
+
+      if (state.tariffId === 'standard' || state.tariffId === 'comfort') {
+        const wpItems = getAllItemsInCategory('wallpapers');
+        const selectedWp = findMaterialById(state.selectedMaterials.wallCovering) || wpItems[0];
+        if (selectedWp) {
+          const qty = calcMaterialQtyByMode('walls');
+          const price = Number(selectedWp.price) || 0;
+          result.push({
+            slotKey: 'wallCovering',
+            slotLabel: 'Обои на стены',
+            item: selectedWp,
+            qty,
+            price,
+            total: qty * price
+          });
+        }
+      } else {
+        const wallsQty = calcMaterialQtyByMode('walls');
+        const paintPrice = Number(state.paint?.pricePerM2) || 0;
+        if (paintPrice > 0 || state.paint?.ralCode) {
+          result.push({
+            slotKey: 'paint',
+            slotLabel: 'Краска для стен',
+            item: {
+              id: 'paint-dulux',
+              sku: state.paint?.ralCode || 'RAL',
+              name: `${state.paint?.brand || 'Dulux Bindo 7'} (${state.paint?.ralCode || 'RAL 9010'}${state.paint?.ralName ? ' — ' + state.paint.ralName : ''})`,
+              unit: 'м²',
+              price: paintPrice
+            },
+            qty: wallsQty,
+            price: paintPrice,
+            total: wallsQty * paintPrice
+          });
+        }
+      }
+
+      const kgItems = getAllItemsInCategory('porcelain_600x1200');
+      const modeMap = {
+        floor: 'wetFloor',
+        walls: 'wetWallsMain',
+        accent: 'accentWall',
+        hallway: 'hallwayFloor',
+        entrance: 'entranceFloor'
+      };
+
+      (tariff.tileZones || []).forEach((zoneKey) => {
+        const slotKey = 'tile_' + zoneKey;
+        const selectedKg = findMaterialById(state.selectedMaterials[slotKey]) || kgItems[0];
+        if (selectedKg) {
+          const qty = calcMaterialQtyByMode(modeMap[zoneKey] || 'wetFloor');
+          const price = Number(selectedKg.price) || 0;
+          result.push({
+            slotKey,
+            slotLabel: TILE_ZONE_LABELS[zoneKey] || 'Керамогранит',
+            item: selectedKg,
+            qty,
+            price,
+            total: qty * price
+          });
+        }
+      });
+
+      const bathItems = getAllItemsInCategory('bathtubs');
+      const selectedBath = findMaterialById(state.selectedMaterials.bathtub) || bathItems[0];
+      if (selectedBath) {
+        const qty = calcMaterialQtyByMode('bathrooms');
+        const price = Number(selectedBath.price) || 0;
+        result.push({
+          slotKey: 'bathtub',
+          slotLabel: 'Ванна',
+          item: selectedBath,
+          qty,
+          price,
+          total: qty * price
+        });
+      }
+
+      const toiletItems = getAllItemsInCategory('toilets');
+      const selectedToilet = findMaterialById(state.selectedMaterials.toilet) || toiletItems[0];
+      if (selectedToilet) {
+        const qty = calcMaterialQtyByMode('bathrooms');
+        const price = Number(selectedToilet.price) || 0;
+        result.push({
+          slotKey: 'toilet',
+          slotLabel: 'Унитаз с инсталляцией',
+          item: selectedToilet,
+          qty,
+          price,
+          total: qty * price
+        });
+      }
+
+      return result;
+    }
+
+    function syncParamInputsFromState() {
+      const map = [
+        { id: 'paramTotalArea', key: 'totalArea' },
+        { id: 'paramLivingArea', key: 'livingArea' },
+        { id: 'paramRoomsCount', key: 'roomsCount' },
+        { id: 'paramBathroomsCount', key: 'bathroomsCount' },
+        { id: 'paramCeilingHeight', key: 'ceilingHeight' },
+        { id: 'paramDoorsCount', key: 'doorsCount' }
+      ];
+      map.forEach(({ id, key }) => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.value = state.params[key];
+        }
+      });
+    }
+
+    function calcTotals() {
+      const worksTotal = (state.works || []).reduce((acc, w) => acc + (Number(w.qty) || 0) * (Number(w.price) || 0), 0);
+      const workersTotal = (state.works || []).reduce((acc, w) => acc + getWorkerLineTotal(w), 0);
+      const workerExtraTotal = calcWorkerExtraTotal();
+      const workersCombinedTotal = workersTotal + workerExtraTotal;
+      const selectedMats = getSelectedMaterialsList();
+      const materialsTotal = selectedMats.reduce((acc, m) => acc + (Number(m.total) || 0), 0);
+      const roughTotal = calcRoughTotal();
+      const grandTotal = worksTotal + materialsTotal + (state.includeRoughInGrandTotal ? roughTotal : 0);
+      return {
+        worksTotal,
+        workersTotal,
+        workerExtraTotal,
+        workersCombinedTotal,
+        materialsTotal,
+        roughTotal,
+        grandTotal,
+        selectedMats
+      };
     }
 
     function renderWorksTable() {
@@ -2233,6 +2491,930 @@
         const fullSum = totals.worksTotal + totals.materialsTotal + totals.roughTotal;
         rGrandEl.textContent = formatRub(state.includeRoughInGrandTotal ? totals.grandTotal : fullSum);
       }
+
+      const wEstEl = document.getElementById('workersEstimateWorksTotal');
+      const wGrandEl = document.getElementById('workersGrandTotalDisplay');
+      const wExtraEl = document.getElementById('workersExtraTotalDisplay');
+      const wCombinedEl = document.getElementById('workersCombinedTotalDisplay');
+      if (wEstEl) wEstEl.textContent = formatRub(totals.worksTotal);
+      if (wGrandEl) wGrandEl.textContent = formatRub(totals.workersTotal);
+      if (wExtraEl) wExtraEl.textContent = formatRub(totals.workerExtraTotal);
+      if (wCombinedEl) wCombinedEl.textContent = formatRub(totals.workersCombinedTotal);
+    }
+
+    function renderWorkerExtraTable() {
+      const tbody = document.getElementById('workerExtraTableBody');
+      const badge = document.getElementById('workerExtraCountBadge');
+      const items = state.workerExtraItems || [];
+
+      if (badge) {
+        badge.textContent = `${items.length} ${items.length === 1 ? 'позиция' : (items.length >= 2 && items.length <= 4 ? 'позиции' : 'позиций')}`;
+      }
+      if (!tbody) return;
+
+      if (!items.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-6 px-4 text-center text-xs sm:text-sm text-slate-500">
+              Дополнительных работ для работников пока нет. Добавьте позицию выше.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = items.map((item, idx) => {
+        const qty = Number(item.qty) || 0;
+        const unitPrice = Number(item.unitPrice) || 0;
+        const lineTotal = Math.round(qty * unitPrice);
+        return `
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3 px-4 font-medium text-slate-800">${item.name}</td>
+            <td class="py-3 px-3 text-center text-slate-500">${item.unit}</td>
+            <td class="py-3 px-3 text-right">
+              <input type="number" step="0.1" min="0" data-wextra-idx="${idx}" data-wextra-field="qty" value="${qty}"
+                class="wextra-num-input w-24 text-right rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            </td>
+            <td class="py-3 px-3 text-right bg-amber-50/40">
+              <input type="number" step="10" min="0" data-wextra-idx="${idx}" data-wextra-field="unitPrice" value="${unitPrice}"
+                class="wextra-num-input w-28 text-right rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            </td>
+            <td id="wextraRowTotal-${idx}" class="py-3 px-4 text-right font-extrabold text-amber-950 bg-amber-50/60">
+              ${formatRub(lineTotal)}
+            </td>
+            <td class="py-3 px-3 text-center no-print">
+              <button type="button" data-remove-wextra-idx="${idx}" class="px-2 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 transition" title="Удалить позицию">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function buildWorkerExtraEstimateText() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const v = calcAreasAndVolumes();
+      const items = state.workerExtraItems || [];
+      const lines = [
+        `ДОП. СМЕТА ДЛЯ РАБОТНИКОВ — ПАКЕТ «${tariff.name.toUpperCase()}»`,
+        `Объект: ${formatNum(v.totalArea)} м², комнат: ${v.rooms}, с/у: ${v.bathrooms}`,
+        '----------------------------------------'
+      ];
+
+      if (!items.length) {
+        lines.push('Позиции отсутствуют.');
+      } else {
+        items.forEach((item, idx) => {
+          const qty = Number(item.qty) || 0;
+          const unitPrice = Number(item.unitPrice) || 0;
+          const total = Math.round(qty * unitPrice);
+          lines.push(`${idx + 1}. ${item.name} — ${formatNum(qty)} ${item.unit} × ${formatRub(unitPrice)}/${item.unit} = ${formatRub(total)}`);
+        });
+      }
+
+      lines.push('----------------------------------------');
+      lines.push(`ИТОГО ПО ДОП. СМЕТЕ РАБОТНИКАМ: ${formatRub(calcWorkerExtraTotal())}`);
+      return lines.join('\n');
+    }
+
+    // Формирует текстовую ведомость выплат работникам (основная + доп. смета)
+    function buildWorkersSheetText() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const v = calcAreasAndVolumes();
+      const totals = calcTotals();
+      const lines = [
+        `ВЕДОМОСТЬ ВЫПЛАТ РАБОТНИКАМ ПО ОБЪЁМАМ — ПАКЕТ «${tariff.name.toUpperCase()}»`,
+        `Объект: ${formatNum(v.totalArea)} м², комнат: ${v.rooms}, санузлов: ${v.bathrooms}, потолки: ${formatNum(v.height)} м`,
+        '========================================',
+        'ОСНОВНЫЕ РАБОТЫ ДЛЯ РАБОТНИКОВ:'
+      ];
+
+      (state.works || []).forEach((w, idx) => {
+        const qty = Number(w.qty) || 0;
+        const unitRate = getWorkerUnitPrice(w);
+        const lineTotal = getWorkerLineTotal(w);
+        lines.push(`${idx + 1}. [${w.section}] ${w.name} — ${formatNum(qty)} ${w.unit} × ${formatRub(unitRate)}/${w.unit} = ${formatRub(lineTotal)}`);
+      });
+
+      lines.push('----------------------------------------');
+      lines.push(`Итого основная смета работникам: ${formatRub(totals.workersTotal)}`);
+
+      if ((state.workerExtraItems || []).length > 0) {
+        lines.push('----------------------------------------');
+        lines.push('ДОПОЛНИТЕЛЬНАЯ СМЕТА ДЛЯ РАБОТНИКОВ:');
+        (state.workerExtraItems || []).forEach((item, idx) => {
+          const qty = Number(item.qty) || 0;
+          const unitPrice = Number(item.unitPrice) || 0;
+          const lineTotal = Math.round(qty * unitPrice);
+          lines.push(`${idx + 1}. ${item.name} — ${formatNum(qty)} ${item.unit} × ${formatRub(unitPrice)}/${item.unit} = ${formatRub(lineTotal)}`);
+        });
+        lines.push(`Итого доп. смета работникам: ${formatRub(totals.workerExtraTotal)}`);
+      }
+
+      lines.push('========================================');
+      lines.push(`ИТОГО К ВЫПЛАТЕ РАБОТНИКАМ: ${formatRub(totals.workersCombinedTotal)}`);
+      return lines.join('\n');
+    }
+
+    // Экранирует ячейку для CSV с разделителем точка с запятой (удобно для Excel в RU-локалях)
+    function escapeCsvCell(val) {
+      const str = String(val ?? '').replace(/"/g, '""');
+      return `"${str}"`;
+    }
+
+    // Экранирует спецсимволы HTML для безопасной сборки оформленных документов
+    function escapeHtmlText(val) {
+      return String(val ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Собирает единый оформленный HTML-документ в оливковой палитре компании
+    function buildStyledDocumentHtml({ docBadge, docTitle, docSubtitle, kpiCards, sections, summaryRows, footerNote }) {
+      const generatedDate = new Date().toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      const kpisHtml = (kpiCards || []).map((card) => `
+        <div class="kpi-card ${card.accent ? 'kpi-card--accent' : ''}">
+          <div class="kpi-label">${escapeHtmlText(card.label)}</div>
+          <div class="kpi-value">${escapeHtmlText(card.value)}</div>
+          ${card.hint ? `<div class="kpi-hint">${escapeHtmlText(card.hint)}</div>` : ''}
+        </div>
+      `).join('');
+
+      const sectionsHtml = (sections || []).map((sec) => {
+        const headersHtml = (sec.columns || []).map((col) => `
+          <th class="${col.align === 'right' ? 'num' : (col.align === 'center' ? 'center' : '')}">${escapeHtmlText(col.label)}</th>
+        `).join('');
+
+        const rowsHtml = (sec.rows || []).map((row) => {
+          if (row.groupTitle) {
+            return `
+              <tr class="group-row">
+                <td colspan="${(sec.columns || []).length}">${escapeHtmlText(row.groupTitle)}</td>
+              </tr>
+            `;
+          }
+          const cellsHtml = (row.cells || []).map((cell, cIdx) => {
+            const colAlign = sec.columns?.[cIdx]?.align || 'left';
+            const cls = [
+              colAlign === 'right' ? 'num' : (colAlign === 'center' ? 'center' : ''),
+              cell.bold ? 'bold' : '',
+              cell.muted ? 'muted' : '',
+              cell.olive ? 'olive-cell' : ''
+            ].filter(Boolean).join(' ');
+            return `<td class="${cls}">${escapeHtmlText(cell.text)}</td>`;
+          }).join('');
+          return `<tr>${cellsHtml}</tr>`;
+        }).join('');
+
+        return `
+          <section class="doc-section">
+            <div class="section-head">
+              <h2>${escapeHtmlText(sec.title)}</h2>
+              ${sec.badge ? `<span class="sec-badge">${escapeHtmlText(sec.badge)}</span>` : ''}
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>${headersHtml}</tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml || `<tr><td colspan="${(sec.columns || []).length}" class="empty-row">Позиции отсутствуют</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      }).join('');
+
+      const summaryHtml = (summaryRows || []).map((item) => `
+        <div class="summary-row ${item.grand ? 'summary-row--grand' : ''}">
+          <span>${escapeHtmlText(item.label)}</span>
+          <strong>${escapeHtmlText(item.value)}</strong>
+        </div>
+      `).join('');
+
+      return `<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtmlText(docTitle)}</title>
+  <style>
+    :root {
+      --olive-950: #232b19;
+      --olive-900: #333e25;
+      --olive-800: #455432;
+      --olive-700: #55673e;
+      --olive-600: #687c4d;
+      --olive-100: #eef2e6;
+      --olive-50: #f7f9f3;
+      --sand-50: #fbfaf7;
+      --sand-100: #f3f0e8;
+      --border: #dce2d1;
+      --text: #22271d;
+      --muted: #5c6652;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px 16px 48px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #eff3e8 0%, #f7f8f4 260px, #f4f6f0 100%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .sheet {
+      max-width: 1020px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 14px 36px rgba(35, 43, 25, 0.08);
+    }
+    .doc-header {
+      background: linear-gradient(135deg, var(--olive-900) 0%, var(--olive-700) 100%);
+      color: #ffffff;
+      padding: 28px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    .doc-badge {
+      display: inline-block;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(238, 242, 230, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #f6f9f0;
+    }
+    .doc-header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .doc-subtitle {
+      margin: 6px 0 0;
+      font-size: 13.5px;
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .meta-box {
+      text-align: right;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .print-btn {
+      margin-top: 10px;
+      background: #ffffff;
+      color: var(--olive-900);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .print-btn:hover { background: var(--olive-100); }
+    .doc-body { padding: 26px 32px 32px; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+    .kpi-card {
+      background: var(--olive-50);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .kpi-card--accent {
+      background: linear-gradient(135deg, #eef3e4 0%, #e3ebd4 100%);
+      border-color: #b7c69d;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .kpi-value {
+      margin-top: 4px;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--olive-950);
+    }
+    .kpi-hint {
+      margin-top: 3px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .doc-section { margin-top: 24px; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--olive-900);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .sec-badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--olive-800);
+      background: var(--olive-100);
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: var(--olive-50);
+      color: var(--olive-900);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 13px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 13px;
+      border-bottom: 1px solid #edf0e6;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafcf7; }
+    tr.group-row td {
+      background: var(--sand-100);
+      color: var(--olive-900);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 8px 13px;
+    }
+    th.num, td.num { text-align: right; white-space: nowrap; }
+    th.center, td.center { text-align: center; white-space: nowrap; }
+    td.bold { font-weight: 700; color: var(--olive-950); }
+    td.muted { color: var(--muted); }
+    td.olive-cell { background: #f4f7ee; font-weight: 800; color: var(--olive-900); }
+    .empty-row { text-align: center; color: var(--muted); padding: 18px; }
+    .summary-box {
+      margin-top: 26px;
+      background: var(--sand-50);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin-left: auto;
+      max-width: 480px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 7px 0;
+      font-size: 13.5px;
+      color: var(--text);
+      border-bottom: 1px dashed #dde3d2;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row--grand {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 2px solid var(--olive-700);
+      border-bottom: none;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--olive-950);
+    }
+    .doc-footer {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .sheet { box-shadow: none; border: none; border-radius: 0; }
+      .print-btn { display: none; }
+    }
+    @media (max-width: 640px) {
+      .doc-header, .doc-body { padding: 20px 16px; }
+      .meta-box { text-align: left; }
+      .summary-box { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <header class="doc-header">
+      <div>
+        <div class="brand-row">
+          <span class="brand-mark">РМ</span>
+          <span class="doc-badge">${escapeHtmlText(docBadge)}</span>
+        </div>
+        <h1>${escapeHtmlText(docTitle)}</h1>
+        <p class="doc-subtitle">${escapeHtmlText(docSubtitle)}</p>
+      </div>
+      <div class="meta-box">
+        <div>Дата формирования: <strong>${escapeHtmlText(generatedDate)}</strong></div>
+        <button type="button" class="print-btn" onclick="window.print()">Печать / Сохранить PDF</button>
+      </div>
+    </header>
+
+    <main class="doc-body">
+      <div class="kpi-grid">${kpisHtml}</div>
+      ${sectionsHtml}
+      <div class="summary-box">${summaryHtml}</div>
+      <footer class="doc-footer">
+        <span>${escapeHtmlText(footerNote || 'Документ сформирован в калькуляторе ремонта квартир')}</span>
+        <span>Оливковая серия · Смета</span>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>`;
+    }
+
+    // Формирует красиво оформленный HTML-документ сметы для заказчика
+    function buildClientEstimateHtml() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const v = calcAreasAndVolumes();
+      const totals = calcTotals();
+      const perM2 = v.totalArea > 0 ? Math.round(totals.grandTotal / v.totalArea) : 0;
+
+      const workRows = [];
+      let currentSec = '';
+      (state.works || []).forEach((w) => {
+        if (w.section && w.section !== currentSec) {
+          currentSec = w.section;
+          workRows.push({ groupTitle: currentSec });
+        }
+        const qty = Number(w.qty) || 0;
+        const price = Number(w.price) || 0;
+        workRows.push({
+          cells: [
+            { text: w.name, bold: true },
+            { text: w.unit, muted: true },
+            { text: formatNum(qty) },
+            { text: formatRub(price) },
+            { text: formatRub(qty * price), olive: true }
+          ]
+        });
+      });
+
+      const matRows = (totals.selectedMats || []).map((m) => ({
+        cells: [
+          { text: m.slotLabel, muted: true },
+          { text: m.item.name + (m.item.sku ? ` (арт. ${m.item.sku})` : ''), bold: true },
+          { text: m.item.unit, muted: true },
+          { text: formatNum(m.qty) },
+          { text: formatRub(m.price) },
+          { text: formatRub(m.total), olive: true }
+        ]
+      }));
+
+      const sections = [
+        {
+          title: 'Отделочные работы',
+          badge: `${(state.works || []).length} поз.`,
+          columns: [
+            { label: 'Наименование работы', align: 'left' },
+            { label: 'Ед.', align: 'center' },
+            { label: 'Объём', align: 'right' },
+            { label: 'Цена, ₽', align: 'right' },
+            { label: 'Сумма, ₽', align: 'right' }
+          ],
+          rows: workRows
+        },
+        {
+          title: 'Чистовые материалы и отделка',
+          badge: `${(totals.selectedMats || []).length} поз.`,
+          columns: [
+            { label: 'Зона / категория', align: 'left' },
+            { label: 'Материал', align: 'left' },
+            { label: 'Ед.', align: 'center' },
+            { label: 'Кол-во', align: 'right' },
+            { label: 'Цена, ₽', align: 'right' },
+            { label: 'Сумма, ₽', align: 'right' }
+          ],
+          rows: matRows
+        }
+      ];
+
+      if (state.includeRoughInGrandTotal && (state.roughMaterials || []).length > 0) {
+        const roughRows = (state.roughMaterials || []).map((r) => {
+          const qty = Number(r.qty) || 0;
+          const price = Number(r.price) || 0;
+          return {
+            cells: [
+              { text: r.name, bold: true },
+              { text: r.unit, muted: true },
+              { text: formatNum(qty) },
+              { text: formatRub(price) },
+              { text: formatRub(qty * price), olive: true }
+            ]
+          };
+        });
+        sections.push({
+          title: 'Черновые материалы',
+          badge: `${(state.roughMaterials || []).length} поз.`,
+          columns: [
+            { label: 'Наименование материала', align: 'left' },
+            { label: 'Ед.', align: 'center' },
+            { label: 'Кол-во', align: 'right' },
+            { label: 'Цена, ₽', align: 'right' },
+            { label: 'Сумма, ₽', align: 'right' }
+          ],
+          rows: roughRows
+        });
+      }
+
+      return buildStyledDocumentHtml({
+        docBadge: 'Коммерческое предложение · Для заказчика',
+        docTitle: `Смета на ремонт — пакет «${tariff.name}»`,
+        docSubtitle: `Общая площадь ${formatNum(v.totalArea)} м² (жилая ${formatNum(v.livingArea)} м²) · Комнат: ${v.rooms} · Санузлов: ${v.bathrooms} · Потолки: ${formatNum(v.height)} м`,
+        kpiCards: [
+          { label: 'Работы', value: formatRub(totals.worksTotal), hint: 'По разделам отделки' },
+          { label: 'Чистовые материалы', value: formatRub(totals.materialsTotal), hint: 'Пол, стены, сантехника' },
+          { label: 'Черновые материалы', value: formatRub(totals.roughTotal), hint: state.includeRoughInGrandTotal ? 'Включены в итог' : 'Не включены в итог' },
+          { label: 'Итого бюджет', value: formatRub(totals.grandTotal), hint: `${formatRub(perM2)} за 1 м²`, accent: true }
+        ],
+        sections,
+        summaryRows: [
+          { label: 'Стоимость работ', value: formatRub(totals.worksTotal) },
+          { label: 'Чистовые материалы', value: formatRub(totals.materialsTotal) },
+          { label: 'Черновые материалы', value: formatRub(totals.roughTotal) },
+          { label: 'Средняя стоимость за 1 м²', value: formatRub(perM2) },
+          { label: 'ИТОГО К ОПЛАТЕ ЗАКАЗЧИКОМ', value: formatRub(totals.grandTotal), grand: true }
+        ],
+        footerNote: `Тариф «${tariff.name}» · Площадь объекта ${formatNum(v.totalArea)} м²`
+      });
+    }
+
+    // Формирует красиво оформленный HTML-документ ведомости выплат работникам по объёмам
+    function buildWorkersSheetHtml() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const v = calcAreasAndVolumes();
+      const totals = calcTotals();
+
+      const mainRows = [];
+      let currentSec = '';
+      (state.works || []).forEach((w) => {
+        if (w.section && w.section !== currentSec) {
+          currentSec = w.section;
+          mainRows.push({ groupTitle: currentSec });
+        }
+        const qty = Number(w.qty) || 0;
+        const unitRate = getWorkerUnitPrice(w);
+        const lineTotal = getWorkerLineTotal(w);
+        mainRows.push({
+          cells: [
+            { text: w.name, bold: true },
+            { text: w.unit, muted: true },
+            { text: formatNum(qty) },
+            { text: formatRub(unitRate) },
+            { text: formatRub(lineTotal), olive: true }
+          ]
+        });
+      });
+
+      const sections = [
+        {
+          title: 'Основная ведомость работ по объёмам',
+          badge: `${(state.works || []).length} поз.`,
+          columns: [
+            { label: 'Наименование работы', align: 'left' },
+            { label: 'Ед.', align: 'center' },
+            { label: 'Объём', align: 'right' },
+            { label: 'Цена за ед., ₽', align: 'right' },
+            { label: 'Сумма за объём, ₽', align: 'right' }
+          ],
+          rows: mainRows
+        }
+      ];
+
+      if ((state.workerExtraItems || []).length > 0) {
+        const extraRows = (state.workerExtraItems || []).map((item) => {
+          const qty = Number(item.qty) || 0;
+          const unitPrice = Number(item.unitPrice) || 0;
+          const total = Math.round(qty * unitPrice);
+          return {
+            cells: [
+              { text: item.name, bold: true },
+              { text: item.unit, muted: true },
+              { text: formatNum(qty) },
+              { text: formatRub(unitPrice) },
+              { text: formatRub(total), olive: true }
+            ]
+          };
+        });
+        sections.push({
+          title: 'Дополнительная смета для работников',
+          badge: `${(state.workerExtraItems || []).length} поз.`,
+          columns: [
+            { label: 'Наименование доп. работы', align: 'left' },
+            { label: 'Ед.', align: 'center' },
+            { label: 'Объём', align: 'right' },
+            { label: 'Цена за ед., ₽', align: 'right' },
+            { label: 'Сумма за объём, ₽', align: 'right' }
+          ],
+          rows: extraRows
+        });
+      }
+
+      return buildStyledDocumentHtml({
+        docBadge: 'Внутренний документ · Выплаты исполнителям',
+        docTitle: `Ведомость выплат работникам — «${tariff.name}»`,
+        docSubtitle: `Объект: ${formatNum(v.totalArea)} м² · Комнат: ${v.rooms} · Санузлов: ${v.bathrooms} · Потолки: ${formatNum(v.height)} м`,
+        kpiCards: [
+          { label: 'Основная смета работникам', value: formatRub(totals.workersTotal), hint: 'По объёмам работ' },
+          { label: 'Доп. смета работникам', value: formatRub(totals.workerExtraTotal), hint: `${(state.workerExtraItems || []).length} доп. позиций` },
+          { label: 'Итого к выплате', value: formatRub(totals.workersCombinedTotal), hint: 'Основная + доп. смета', accent: true }
+        ],
+        sections,
+        summaryRows: [
+          { label: 'Основная смета работникам', value: formatRub(totals.workersTotal) },
+          { label: 'Дополнительная смета работникам', value: formatRub(totals.workerExtraTotal) },
+          { label: 'ИТОГО К ВЫПЛАТЕ РАБОТНИКАМ', value: formatRub(totals.workersCombinedTotal), grand: true }
+        ],
+        footerNote: `Ведомость по объёмам · Пакет «${tariff.name}»`
+      });
+    }
+
+    // Формирует CSV-таблицу ведомости выплат работникам
+    function buildWorkersSheetCsv() {
+      const totals = calcTotals();
+      const rows = [
+        ['Раздел', 'Наименование работы', 'Ед.', 'Объём', 'Цена за ед., ₽', 'Сумма за объём, ₽']
+      ];
+
+      (state.works || []).forEach((w) => {
+        const qty = Number(w.qty) || 0;
+        const unitRate = getWorkerUnitPrice(w);
+        const lineTotal = getWorkerLineTotal(w);
+        rows.push([
+          w.section || 'Основные работы',
+          w.name,
+          w.unit,
+          String(qty).replace('.', ','),
+          Math.round(unitRate),
+          Math.round(lineTotal)
+        ]);
+      });
+
+      (state.workerExtraItems || []).forEach((item) => {
+        const qty = Number(item.qty) || 0;
+        const unitPrice = Number(item.unitPrice) || 0;
+        const lineTotal = Math.round(qty * unitPrice);
+        rows.push([
+          'Дополнительная смета',
+          item.name,
+          item.unit,
+          String(qty).replace('.', ','),
+          Math.round(unitPrice),
+          lineTotal
+        ]);
+      });
+
+      rows.push([]);
+      rows.push(['', 'Основная смета работникам', '', '', '', Math.round(totals.workersTotal)]);
+      rows.push(['', 'Доп. смета работникам', '', '', '', Math.round(totals.workerExtraTotal)]);
+      rows.push(['', 'ИТОГО К ВЫПЛАТЕ РАБОТНИКАМ', '', '', '', Math.round(totals.workersCombinedTotal)]);
+
+      return '\uFEFF' + rows.map((r) => r.map(escapeCsvCell).join(';')).join('\r\n');
+    }
+
+    // Формирует текстовую смету для заказчика
+    function buildClientEstimateText() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const v = calcAreasAndVolumes();
+      const totals = calcTotals();
+      const lines = [
+        `СМЕТА ДЛЯ ЗАКАЗЧИКА — ПАКЕТ «${tariff.name.toUpperCase()}»`,
+        `Объект: ${formatNum(v.totalArea)} м² (жилая ${formatNum(v.livingArea)} м²), комнат: ${v.rooms}, с/у: ${v.bathrooms}, потолки: ${formatNum(v.height)} м`,
+        '========================================',
+        'РАБОТЫ (ПО РАЗДЕЛАМ):'
+      ];
+
+      (state.works || []).forEach((w, idx) => {
+        const qty = Number(w.qty) || 0;
+        const price = Number(w.price) || 0;
+        lines.push(`${idx + 1}. [${w.section}] ${w.name} — ${formatNum(qty)} ${w.unit} × ${formatRub(price)} = ${formatRub(qty * price)}`);
+      });
+
+      lines.push('----------------------------------------');
+      lines.push('ЧИСТОВЫЕ МАТЕРИАЛЫ И ОТДЕЛКА:');
+      (totals.selectedMats || []).forEach((m, idx) => {
+        const skuPart = m.item.sku ? ` [арт. ${m.item.sku}]` : '';
+        lines.push(`${idx + 1}. ${m.slotLabel}: ${m.item.name}${skuPart} — ${formatNum(m.qty)} ${m.item.unit} × ${formatRub(m.price)} = ${formatRub(m.total)}`);
+      });
+
+      if (state.includeRoughInGrandTotal && (state.roughMaterials || []).length > 0) {
+        lines.push('----------------------------------------');
+        lines.push('ЧЕРНОВЫЕ МАТЕРИАЛЫ:');
+        (state.roughMaterials || []).forEach((r, idx) => {
+          const qty = Number(r.qty) || 0;
+          const price = Number(r.price) || 0;
+          lines.push(`${idx + 1}. ${r.name} — ${formatNum(qty)} ${r.unit} × ${formatRub(price)} = ${formatRub(qty * price)}`);
+        });
+      }
+
+      lines.push('========================================');
+      lines.push(`Стоимость работ: ${formatRub(totals.worksTotal)}`);
+      lines.push(`Чистовые материалы: ${formatRub(totals.materialsTotal)}`);
+      lines.push(`Черновые материалы: ${formatRub(totals.roughTotal)}`);
+      lines.push(`ИТОГО БЮДЖЕТ ДЛЯ ЗАКАЗЧИКА: ${formatRub(totals.grandTotal)}`);
+      if (v.totalArea > 0) {
+        lines.push(`Средняя стоимость за 1 м²: ${formatRub(Math.round(totals.grandTotal / v.totalArea))}`);
+      }
+      return lines.join('\n');
+    }
+
+    // Формирует CSV-смету для заказчика
+    function buildClientEstimateCsv() {
+      const totals = calcTotals();
+      const rows = [
+        ['Категория', 'Наименование', 'Ед.', 'Объём', 'Цена, ₽', 'Сумма, ₽']
+      ];
+
+      (state.works || []).forEach((w) => {
+        const qty = Number(w.qty) || 0;
+        const price = Number(w.price) || 0;
+        rows.push([
+          `Работа (${w.section || 'Общее'})`,
+          w.name,
+          w.unit,
+          String(qty).replace('.', ','),
+          Math.round(price),
+          Math.round(qty * price)
+        ]);
+      });
+
+      (totals.selectedMats || []).forEach((m) => {
+        rows.push([
+          `Чистовой материал (${m.slotLabel})`,
+          m.item.name + (m.item.sku ? ` [арт. ${m.item.sku}]` : ''),
+          m.item.unit,
+          String(m.qty).replace('.', ','),
+          Math.round(m.price),
+          Math.round(m.total)
+        ]);
+      });
+
+      if (state.includeRoughInGrandTotal) {
+        (state.roughMaterials || []).forEach((r) => {
+          const qty = Number(r.qty) || 0;
+          const price = Number(r.price) || 0;
+          rows.push([
+            'Черновой материал',
+            r.name,
+            r.unit,
+            String(qty).replace('.', ','),
+            Math.round(price),
+            Math.round(qty * price)
+          ]);
+        });
+      }
+
+      rows.push([]);
+      rows.push(['', 'Стоимость работ', '', '', '', Math.round(totals.worksTotal)]);
+      rows.push(['', 'Чистовые материалы', '', '', '', Math.round(totals.materialsTotal)]);
+      rows.push(['', 'Черновые материалы', '', '', '', Math.round(totals.roughTotal)]);
+      rows.push(['', 'ИТОГО ДЛЯ ЗАКАЗЧИКА', '', '', '', Math.round(totals.grandTotal)]);
+
+      return '\uFEFF' + rows.map((r) => r.map(escapeCsvCell).join(';')).join('\r\n');
+    }
+
+    // Запускает скачивание файла в браузере
+    function triggerFileDownload(filename, content, mimeType) {
+      try {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        return true;
+      } catch (err) {
+        console.error('Ошибка скачивания файла:', err);
+        return false;
+      }
+    }
+
+    function renderWorkersPayTab() {
+      const tariff = TARIFFS[state.tariffId] || TARIFFS.standard;
+      const subEl = document.getElementById('workersTariffSubtitle');
+      if (subEl) {
+        subEl.textContent = `Пакет «${tariff.name}» · Задайте цену за единицу для работников (₽/ед.) — сумма за объём считается автоматически.`;
+      }
+
+      const shareInput = document.getElementById('workerSharePercentInput');
+      if (shareInput && document.activeElement !== shareInput) {
+        shareInput.value = Math.round((Number(state.workerPayShare) || 0.65) * 100);
+      }
+
+      const badge = document.getElementById('workersItemsCountBadge');
+      if (badge) badge.textContent = `${(state.works || []).length} позиций`;
+
+      const tbody = document.getElementById('workersPayTableBody');
+      if (!tbody) return;
+
+      let currentSection = '';
+      const rowsHtml = [];
+
+      (state.works || []).forEach((w, idx) => {
+        if (w.section !== currentSection) {
+          currentSection = w.section;
+          rowsHtml.push(`
+            <tr class="bg-slate-100/80">
+              <td colspan="5" class="py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-slate-700">
+                ${currentSection}
+              </td>
+            </tr>
+          `);
+        }
+
+        const qty = Number(w.qty) || 0;
+        const unitRate = getWorkerUnitPrice(w);
+        const lineWorkerTotal = getWorkerLineTotal(w);
+
+        rowsHtml.push(`
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3 px-4 font-medium text-slate-800">${w.name}</td>
+            <td class="py-3 px-3 text-center text-slate-500">${w.unit}</td>
+            <td id="workerRowQty-${idx}" class="py-3 px-3 text-right font-semibold text-slate-700">${formatNum(qty)}</td>
+            <td class="py-3 px-3 text-right bg-amber-50/40">
+              <input type="number" step="10" min="0" data-worker-idx="${idx}" value="${unitRate}"
+                class="worker-unit-rate-input w-28 text-right rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            </td>
+            <td id="workerRowTotal-${idx}" class="py-3 px-4 text-right font-extrabold text-amber-950 bg-amber-50/60">
+              ${formatRub(lineWorkerTotal)}
+            </td>
+          </tr>
+        `);
+      });
+
+      tbody.innerHTML = rowsHtml.join('');
+      renderWorkerExtraTable();
+      updateTotalsUI();
     }
 
     function renderStep2() {
@@ -2337,7 +3519,7 @@
       }
 
       lines.push('----------------------------------------');
-      lines.push(`ИТОГО РАБОТЫ: ${formatRub(totals.worksTotal)}`);
+      lines.push(`ИТОГО РАБОТЫ (СМЕТА): ${formatRub(totals.worksTotal)}`);
       lines.push(`ИТОГО ЧИСТОВЫЕ МАТЕРИАЛЫ: ${formatRub(totals.materialsTotal)}`);
       lines.push(`ИТОГО ЧЕРНОВЫЕ МАТЕРИАЛЫ: ${formatRub(totals.roughTotal)}`);
       lines.push(`ИТОГО К ОПЛАТЕ: ${formatRub(totals.grandTotal)}`);
@@ -2396,13 +3578,18 @@
       document.getElementById('step2Section')?.classList.toggle('hidden', stepNum !== 2);
       document.getElementById('step3Section')?.classList.toggle('hidden', stepNum !== 3);
       document.getElementById('step4Section')?.classList.toggle('hidden', stepNum !== 4);
+      document.getElementById('step5WorkersSection')?.classList.toggle('hidden', stepNum !== 5);
 
       document.querySelectorAll('.step-nav-btn').forEach((btn) => {
         const n = Number(btn.getAttribute('data-step-btn'));
         if (n === stepNum) {
-          btn.className = 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs';
+          btn.className = n === 5
+            ? 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-amber-100 text-amber-950 shadow-xs'
+            : 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs';
         } else {
-          btn.className = 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900';
+          btn.className = n === 5
+            ? 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-amber-800 hover:text-amber-950'
+            : 'step-nav-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900';
         }
       });
 
@@ -2410,6 +3597,7 @@
       if (stepNum === 2) renderStep2();
       if (stepNum === 3) renderStep3();
       if (stepNum === 4) renderStep4Rough();
+      if (stepNum === 5) renderWorkersPayTab();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -2829,9 +4017,15 @@
         const raw = Number(input.value);
         work[field] = Number.isFinite(raw) && raw >= 0 ? raw : 0;
 
+        if (field === 'price' && !work.manualWorkerRate) {
+          work.workerUnitPrice = Math.round((Number(work.price) || 0) * (Number(state.workerPayShare) || 0.65));
+        }
+        work.workerAmount = getWorkerLineTotal(work);
+
+        const lineSum = (Number(work.qty) || 0) * (Number(work.price) || 0);
         const rowTotalEl = document.getElementById(`workRowTotal-${idx}`);
         if (rowTotalEl) {
-          rowTotalEl.textContent = formatRub((Number(work.qty) || 0) * (Number(work.price) || 0));
+          rowTotalEl.textContent = formatRub(lineSum);
         }
         updateTotalsUI();
       });
@@ -2846,11 +4040,165 @@
         const val = field === 'qty' ? round1(input.value) : Math.max(0, Math.round(Number(input.value) || 0));
         work[field] = val;
         input.value = val;
+
+        if (field === 'price' && !work.manualWorkerRate) {
+          work.workerUnitPrice = Math.round((Number(work.price) || 0) * (Number(state.workerPayShare) || 0.65));
+        }
+        work.workerAmount = getWorkerLineTotal(work);
+
         const rowTotalEl = document.getElementById(`workRowTotal-${idx}`);
         if (rowTotalEl) {
           rowTotalEl.textContent = formatRub((Number(work.qty) || 0) * (Number(work.price) || 0));
         }
         updateTotalsUI();
+      });
+
+      const workersBody = document.getElementById('workersPayTableBody');
+      workersBody?.addEventListener('input', (e) => {
+        const input = e.target.closest('.worker-unit-rate-input');
+        if (!input) return;
+        const idx = Number(input.getAttribute('data-worker-idx'));
+        const work = state.works[idx];
+        if (!work) return;
+        const raw = Number(input.value);
+        const unitRate = Number.isFinite(raw) && raw >= 0 ? raw : 0;
+        work.workerUnitPrice = unitRate;
+        work.manualWorkerRate = true;
+        work.workerAmount = getWorkerLineTotal(work);
+
+        const rowTotalEl = document.getElementById(`workerRowTotal-${idx}`);
+        if (rowTotalEl) {
+          rowTotalEl.textContent = formatRub(work.workerAmount);
+        }
+        updateTotalsUI();
+      });
+
+      workersBody?.addEventListener('change', (e) => {
+        const input = e.target.closest('.worker-unit-rate-input');
+        if (!input) return;
+        const idx = Number(input.getAttribute('data-worker-idx'));
+        const work = state.works[idx];
+        if (!work) return;
+        const unitRate = Math.max(0, Math.round(Number(input.value) || 0));
+        work.workerUnitPrice = unitRate;
+        work.manualWorkerRate = true;
+        work.workerAmount = getWorkerLineTotal(work);
+        input.value = unitRate;
+
+        const rowTotalEl = document.getElementById(`workerRowTotal-${idx}`);
+        if (rowTotalEl) {
+          rowTotalEl.textContent = formatRub(work.workerAmount);
+        }
+        updateTotalsUI();
+      });
+
+      document.getElementById('applyWorkerShareBtn')?.addEventListener('click', () => {
+        const pctInput = document.getElementById('workerSharePercentInput');
+        const pct = Math.max(0, Math.min(100, Number(pctInput?.value) || 0));
+        state.workerPayShare = pct / 100;
+        (state.works || []).forEach((w) => {
+          w.manualWorkerRate = false;
+        });
+        recalculateWorkersPayFromWorks();
+        renderWorkersPayTab();
+        showToast(`Ставки работникам пересчитаны (${pct}% от цены сметы)`, 'success');
+      });
+
+      document.getElementById('backFromWorkersBtn')?.addEventListener('click', () => setStep(2));
+
+      document.getElementById('addWorkerExtraItemBtn')?.addEventListener('click', () => {
+        const nameInput = document.getElementById('newWorkerExtraNameInput');
+        const unitInput = document.getElementById('newWorkerExtraUnitInput');
+        const qtyInput = document.getElementById('newWorkerExtraQtyInput');
+        const priceInput = document.getElementById('newWorkerExtraUnitPriceInput');
+
+        const name = nameInput?.value?.trim();
+        if (!name) {
+          showToast('Введите наименование дополнительной работы', 'error');
+          return;
+        }
+        const unit = unitInput?.value?.trim() || 'шт.';
+        const qty = Math.max(0, Number(qtyInput?.value) || 0);
+        const unitPrice = Math.max(0, Number(priceInput?.value) || 0);
+
+        state.workerExtraItems.push({
+          id: 'wextra-' + Date.now(),
+          name,
+          unit,
+          qty: round1(qty),
+          unitPrice: Math.round(unitPrice)
+        });
+
+        if (nameInput) nameInput.value = '';
+        renderWorkerExtraTable();
+        updateTotalsUI();
+        showToast('Позиция добавлена в доп. смету работников', 'success');
+      });
+
+      const workerExtraBody = document.getElementById('workerExtraTableBody');
+      workerExtraBody?.addEventListener('input', (e) => {
+        const input = e.target.closest('.wextra-num-input');
+        if (!input) return;
+        const idx = Number(input.getAttribute('data-wextra-idx'));
+        const field = input.getAttribute('data-wextra-field');
+        const item = state.workerExtraItems[idx];
+        if (!item || !field) return;
+        const raw = Number(input.value);
+        item[field] = Number.isFinite(raw) && raw >= 0 ? raw : 0;
+
+        const rowTotalEl = document.getElementById(`wextraRowTotal-${idx}`);
+        if (rowTotalEl) {
+          rowTotalEl.textContent = formatRub(Math.round((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)));
+        }
+        updateTotalsUI();
+      });
+
+      workerExtraBody?.addEventListener('change', (e) => {
+        const input = e.target.closest('.wextra-num-input');
+        if (!input) return;
+        const idx = Number(input.getAttribute('data-wextra-idx'));
+        const field = input.getAttribute('data-wextra-field');
+        const item = state.workerExtraItems[idx];
+        if (!item || !field) return;
+        const val = field === 'qty' ? round1(input.value) : Math.max(0, Math.round(Number(input.value) || 0));
+        item[field] = val;
+        input.value = val;
+
+        const rowTotalEl = document.getElementById(`wextraRowTotal-${idx}`);
+        if (rowTotalEl) {
+          rowTotalEl.textContent = formatRub(Math.round((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)));
+        }
+        updateTotalsUI();
+      });
+
+      workerExtraBody?.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('[data-remove-wextra-idx]');
+        if (!delBtn) return;
+        const idx = Number(delBtn.getAttribute('data-remove-wextra-idx'));
+        if (idx >= 0 && idx < state.workerExtraItems.length) {
+          state.workerExtraItems.splice(idx, 1);
+          renderWorkerExtraTable();
+          updateTotalsUI();
+          showToast('Позиция удалена из доп. сметы работников', 'info');
+        }
+      });
+
+      document.getElementById('copyWorkerExtraEstimateBtn')?.addEventListener('click', () => {
+        const text = buildWorkerExtraEstimateText();
+        const tempArea = document.createElement('textarea');
+        tempArea.value = text;
+        tempArea.setAttribute('readonly', '');
+        tempArea.style.position = 'absolute';
+        tempArea.style.left = '-9999px';
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Доп. смета для работников скопирована', 'success');
+        } catch (err) {
+          showToast('Не удалось скопировать доп. смету', 'error');
+        }
+        tempArea.remove();
       });
 
       const materialsContainer = document.getElementById('materialsContainer');
@@ -3007,6 +4355,7 @@
         if (state.step === 2) renderStep2();
         if (state.step === 3) renderStep3();
         if (state.step === 4) renderStep4Rough();
+        if (state.step === 5) renderWorkersPayTab();
         closeCatalogModal();
         showToast('Настройки, цены и ссылки на картинки сохранены', 'success');
       });
@@ -3015,21 +4364,82 @@
         try {
           localStorage.removeItem(STORAGE_KEYS.settings);
           localStorage.removeItem(STORAGE_KEYS.images);
+          state.customImages = deepClone(EMBEDDED_CUSTOM_IMAGES);
+          state.materialCatalog = deepClone(DEFAULT_MATERIAL_CATALOG);
+          state.customMaterials = [];
+          applyEmbeddedImagesToCatalog(state.materialCatalog, state.customMaterials, state.customImages);
+          renderCatalogModalBody();
+          renderStep1();
+          if (state.step === 2) renderStep2();
+          if (state.step === 3) renderStep3();
+          if (state.step === 4) renderStep4Rough();
+          if (state.step === 5) renderWorkersPayTab();
+          showToast('Настройки каталога сброшены к значениям по умолчанию', 'info');
         } catch (err) {
-          console.error(err);
+          console.error('Ошибка сброса настроек:', err);
+          showToast('Не удалось сбросить настройки', 'error');
         }
-        state.materialCatalog = deepClone(DEFAULT_MATERIAL_CATALOG);
-        state.customMaterials = [];
-        state.customImages = deepClone(EMBEDDED_CUSTOM_IMAGES);
-        renderCatalogModalBody();
-        renderStep1();
-        if (state.step === 2) renderStep2();
-        showToast('Настройки каталога сброшены', 'info');
       });
 
       document.getElementById('downloadHtmlWithPhotosBtn')?.addEventListener('click', downloadHtmlWithEmbeddedImages);
       document.getElementById('copyExecutorBtn')?.addEventListener('click', copyExecutorToClipboard);
       document.getElementById('printEstimateBtn')?.addEventListener('click', () => window.print());
+
+      // Скачивание сметы для заказчика (HTML, CSV и TXT)
+      document.getElementById('downloadClientHtmlBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `smeta-zakazchiku-${state.tariffId || 'comfort'}.html`,
+          buildClientEstimateHtml(),
+          'text/html;charset=utf-8'
+        );
+        showToast(ok ? 'Оформленная смета для заказчика скачана (HTML)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
+
+      document.getElementById('downloadClientTxtBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `smeta-zakazchiku-${state.tariffId || 'comfort'}.txt`,
+          buildClientEstimateText(),
+          'text/plain;charset=utf-8'
+        );
+        showToast(ok ? 'Смета для заказчика скачана (TXT)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
+
+      document.getElementById('downloadClientCsvBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `smeta-zakazchiku-${state.tariffId || 'comfort'}.csv`,
+          buildClientEstimateCsv(),
+          'text/csv;charset=utf-8'
+        );
+        showToast(ok ? 'Смета для заказчика скачана (CSV)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
+
+      // Скачивание ведомости выплат работникам по объёмам (HTML, CSV и TXT)
+      document.getElementById('downloadWorkersHtmlBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `vedomost-rabotnikam-${state.tariffId || 'comfort'}.html`,
+          buildWorkersSheetHtml(),
+          'text/html;charset=utf-8'
+        );
+        showToast(ok ? 'Оформленная ведомость работникам скачана (HTML)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
+
+      document.getElementById('downloadWorkersTxtBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `vedomost-rabotnikam-${state.tariffId || 'comfort'}.txt`,
+          buildWorkersSheetText(),
+          'text/plain;charset=utf-8'
+        );
+        showToast(ok ? 'Ведомость работникам скачана (TXT)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
+
+      document.getElementById('downloadWorkersCsvBtn')?.addEventListener('click', () => {
+        const ok = triggerFileDownload(
+          `vedomost-rabotnikam-${state.tariffId || 'comfort'}.csv`,
+          buildWorkersSheetCsv(),
+          'text/csv;charset=utf-8'
+        );
+        showToast(ok ? 'Ведомость работникам скачана (CSV)' : 'Не удалось скачать файл', ok ? 'success' : 'error');
+      });
     }
 
     function bootstrapApp() {
