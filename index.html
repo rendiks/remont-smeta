@@ -1,0 +1,3829 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор ремонта квартир — Смета и подбор материалов</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            emeraldbrand: {
+              DEFAULT: '#00a859',
+              50: '#ecfdf4',
+              100: '#d1fae5',
+              600: '#00934e',
+              700: '#047842',
+            },
+            graphite: {
+              DEFAULT: '#1e242b',
+              800: '#272f38',
+              900: '#161b20',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f4f6f8;
+      color: #1e242b;
+    }
+
+    input[type="number"].clean-num::-webkit-inner-spin-button,
+    input[type="number"].clean-num::-webkit-outer-spin-button {
+      opacity: 0.65;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-card {
+        box-shadow: none !important;
+        border: 1px solid #d1d5db !important;
+        break-inside: avoid;
+      }
+      .print-break-before {
+        break-before: page;
+      }
+      @page {
+        margin: 14mm;
+        size: A4 portrait;
+      }
+    }
+
+    .swatch-surface {
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+    .swatch-wood-warm {
+      background:
+        repeating-linear-gradient(92deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 2px, transparent 2px, transparent 14px),
+        linear-gradient(135deg, #b8895a 0%, #96683c 55%, #7c522c 100%);
+    }
+    .swatch-wood-light {
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.14) 0px, rgba(255,255,255,0.14) 2px, transparent 2px, transparent 15px),
+        linear-gradient(135deg, #dec5a3 0%, #c8a87e 60%, #b18f64 100%);
+    }
+    .swatch-wood-dark {
+      background:
+        repeating-linear-gradient(92deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 13px),
+        linear-gradient(135deg, #5c3a28 0%, #43281b 60%, #2d1a11 100%);
+    }
+    .swatch-stone-grey {
+      background:
+        radial-gradient(circle at 20% 25%, rgba(255,255,255,0.25) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(15,23,42,0.14) 0%, transparent 50%),
+        linear-gradient(145deg, #cbd5e1 0%, #94a3b8 55%, #64748b 100%);
+    }
+    .swatch-stone-beige {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35) 0%, transparent 50%),
+        linear-gradient(145deg, #ede3d2 0%, #d8c7ad 60%, #bfa888 100%);
+    }
+    .swatch-stone-blue {
+      background:
+        radial-gradient(circle at 25% 30%, rgba(125,211,252,0.35) 0%, transparent 45%),
+        linear-gradient(145deg, #1e40af 0%, #1d4ed8 50%, #0f172a 100%);
+    }
+    .swatch-stone-dark {
+      background:
+        radial-gradient(circle at 75% 25%, rgba(255,255,255,0.12) 0%, transparent 45%),
+        linear-gradient(145deg, #334155 0%, #1e293b 60%, #0f172a 100%);
+    }
+    .swatch-marble-white {
+      background:
+        linear-gradient(125deg, rgba(148,163,184,0.22) 22%, transparent 23%, transparent 48%, rgba(180,145,90,0.22) 49%, transparent 51%),
+        linear-gradient(155deg, #f8fafc 0%, #f1f5f9 60%, #e2e8f0 100%);
+    }
+    .swatch-paint-soft {
+      background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    .swatch-door-panel {
+      background: linear-gradient(160deg, #e2e8f0 0%, #cbd5e1 55%, #94a3b8 100%);
+    }
+    .swatch-plumbing {
+      background: linear-gradient(145deg, #e0f2fe 0%, #bae6fd 55%, #7dd3fc 100%);
+    }
+    .swatch-bath-acrylic {
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.75) 0%, transparent 55%),
+        linear-gradient(155deg, #f8fafc 0%, #e0f2fe 65%, #bae6fd 100%);
+    }
+    .swatch-bath-freestanding {
+      background:
+        radial-gradient(circle at 65% 25%, rgba(255,255,255,0.85) 0%, transparent 50%),
+        linear-gradient(145deg, #ffffff 0%, #e2e8f0 70%, #cbd5e1 100%);
+    }
+    .swatch-toilet-inst {
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,0.75) 0%, transparent 55%),
+        linear-gradient(150deg, #f1f5f9 0%, #e2e8f0 65%, #cbd5e1 100%);
+    }
+    .swatch-wp-white {
+      background:
+        repeating-linear-gradient(0deg, rgba(148,163,184,0.09) 0px, rgba(148,163,184,0.09) 1px, transparent 1px, transparent 6px),
+        linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+    }
+    .swatch-wp-beige {
+      background:
+        repeating-linear-gradient(90deg, rgba(180,150,115,0.12) 0px, rgba(180,150,115,0.12) 1px, transparent 1px, transparent 7px),
+        linear-gradient(145deg, #f5efe6 0%, #e6dac8 100%);
+    }
+    .swatch-wp-grey {
+      background:
+        repeating-linear-gradient(45deg, rgba(100,116,139,0.1) 0px, rgba(100,116,139,0.1) 1px, transparent 1px, transparent 6px),
+        linear-gradient(145deg, #e2e8f0 0%, #cbd5e1 100%);
+    }
+    .swatch-wp-taupe {
+      background:
+        repeating-linear-gradient(0deg, rgba(120,105,90,0.12) 0px, rgba(120,105,90,0.12) 1px, transparent 1px, transparent 5px),
+        linear-gradient(145deg, #d6ccc2 0%, #b8aba0 100%);
+    }
+    .swatch-wp-sage {
+      background:
+        repeating-linear-gradient(90deg, rgba(90,120,100,0.1) 0px, rgba(90,120,100,0.1) 1px, transparent 1px, transparent 8px),
+        linear-gradient(145deg, #dce5dd 0%, #bccbc0 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-emeraldbrand-100 selection:text-emeraldbrand-700">
+
+  <header class="bg-white border-b border-slate-200/90 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-emeraldbrand text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z" />
+            </svg>
+          </div>
+          <div class="truncate">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-graphite text-base sm:text-lg tracking-tight truncate">РемонтПро Расчёт</span>
+              <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emeraldbrand-50 text-emeraldbrand-700 border border-emeraldbrand-100">
+                Режим встречи
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 hidden sm:block truncate">Моментальная смета работ и подбор материалов под пакет отделки</p>
+          </div>
+        </div>
+
+        <nav aria-label="Этапы расчёта" class="hidden lg:flex items-center gap-2">
+          <button type="button" data-step-nav="1" class="step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all">
+            <span class="w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center step-badge">1</span>
+            <span>Параметры и пакет</span>
+          </button>
+          <span class="text-slate-300">›</span>
+          <button type="button" data-step-nav="2" class="step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all">
+            <span class="w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center step-badge">2</span>
+            <span>Смета и материалы</span>
+          </button>
+          <span class="text-slate-300">›</span>
+          <button type="button" data-step-nav="3" class="step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all">
+            <span class="w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center step-badge">3</span>
+            <span>Итог и наряд</span>
+          </button>
+        </nav>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="cloudSyncStatus" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-100 text-slate-500">
+            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span>Подключение...</span>
+          </span>
+          <button
+            type="button"
+            id="openCatalogEditorBtn"
+            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-graphite text-white hover:bg-graphite-800 active:scale-[0.99] transition shadow-sm cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-emeraldbrand" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            <span>Цены и каталог</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex lg:hidden items-center justify-between py-2.5 border-t border-slate-100 text-xs">
+        <div class="flex items-center gap-1.5">
+          <button type="button" data-step-nav="1" class="mobile-step-pill px-2.5 py-1 rounded-lg font-medium transition">1. Параметры</button>
+          <button type="button" data-step-nav="2" class="mobile-step-pill px-2.5 py-1 rounded-lg font-medium transition">2. Смета</button>
+          <button type="button" data-step-nav="3" class="mobile-step-pill px-2.5 py-1 rounded-lg font-medium transition">3. Итоги</button>
+        </div>
+        <span id="mobileActiveTariffBadge" class="font-semibold text-emeraldbrand-700 bg-emeraldbrand-50 px-2.5 py-1 rounded-lg">Комфорт</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ЭТАП 1 -->
+    <section id="step-1" class="step-section space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emeraldbrand-700 bg-emeraldbrand-50 border border-emeraldbrand-100 px-3 py-1 rounded-full">
+            Шаг 1 из 3
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-bold text-graphite tracking-tight mt-2">
+            Параметры квартиры и уровень отделки
+          </h1>
+          <p class="text-sm sm:text-base text-slate-600 mt-1">
+            Введите замеры объекта и выберите пакет отделки — программа сама рассчитает объёмы работ и подберёт материалы.
+          </p>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-xs flex items-center gap-4 shrink-0">
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Ориентир работ</div>
+            <div id="step1QuickWorkSum" class="text-lg font-bold text-graphite tabular-nums">0 ₽</div>
+          </div>
+          <div class="h-8 w-px bg-slate-200"></div>
+          <div>
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Стены (расч.)</div>
+            <div id="step1QuickWallsArea" class="text-lg font-bold text-emeraldbrand-700 tabular-nums">0 м²</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
+            <h2 class="text-base sm:text-lg font-semibold text-graphite flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emeraldbrand"></span>
+              Параметры квартиры
+            </h2>
+            <button type="button" id="resetDefaultParamsBtn" class="text-xs font-medium text-slate-500 hover:text-emeraldbrand-700 transition cursor-pointer">
+              Сбросить к примеру
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputTotalArea" class="block text-xs font-semibold text-slate-600 mb-1">
+                Общая площадь (м²)
+              </label>
+              <input
+                type="number"
+                id="inputTotalArea"
+                min="10"
+                max="1000"
+                step="0.1"
+                value="65"
+                class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+              />
+              <span class="text-[11px] text-slate-400">Основа пола, потолков и черновых</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputLivingArea" class="block text-xs font-semibold text-slate-600 mb-1">
+                Жилая площадь (м²)
+              </label>
+              <input
+                type="number"
+                id="inputLivingArea"
+                min="5"
+                max="900"
+                step="0.1"
+                value="38"
+                class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+              />
+              <span class="text-[11px] text-slate-400">Комнаты и зоны отдыха</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputRoomsCount" class="block text-xs font-semibold text-slate-600 mb-1">
+                Жилых комнат (шт.)
+              </label>
+              <div class="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  id="inputRoomsCount"
+                  min="0"
+                  max="20"
+                  step="1"
+                  value="2"
+                  class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+                />
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" data-stepper="inputRoomsCount" data-delta="-1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">−</button>
+                  <button type="button" data-stepper="inputRoomsCount" data-delta="1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">+</button>
+                </div>
+              </div>
+              <span class="text-[11px] text-slate-400">Точки света, розеток и откосов</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputBathroomsCount" class="block text-xs font-semibold text-slate-600 mb-1">
+                Санузлов (шт.)
+              </label>
+              <div class="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  id="inputBathroomsCount"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value="2"
+                  class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+                />
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" data-stepper="inputBathroomsCount" data-delta="-1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">−</button>
+                  <button type="button" data-stepper="inputBathroomsCount" data-delta="1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">+</button>
+                </div>
+              </div>
+              <span class="text-[11px] text-slate-400">Плитка, гидроизоляция, сантехника</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputCeilingHeight" class="block text-xs font-semibold text-slate-600 mb-1">
+                Высота потолков (м)
+              </label>
+              <input
+                type="number"
+                id="inputCeilingHeight"
+                min="2.1"
+                max="6.0"
+                step="0.05"
+                value="2.75"
+                class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+              />
+              <span class="text-[11px] text-slate-400">Влияет на площадь стен</span>
+            </div>
+
+            <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5 focus-within:border-emeraldbrand focus-within:ring-2 focus-within:ring-emeraldbrand/15 transition">
+              <label for="inputDoorsCount" class="block text-xs font-semibold text-slate-600 mb-1">
+                Количество дверей (шт.)
+              </label>
+              <div class="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  id="inputDoorsCount"
+                  min="0"
+                  max="30"
+                  step="1"
+                  value="5"
+                  class="clean-num w-full bg-transparent text-lg font-bold text-graphite focus:outline-none tabular-nums"
+                />
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" data-stepper="inputDoorsCount" data-delta="-1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">−</button>
+                  <button type="button" data-stepper="inputDoorsCount" data-delta="1" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-emeraldbrand hover:text-emeraldbrand-700 font-semibold text-sm flex items-center justify-center transition cursor-pointer">+</button>
+                </div>
+              </div>
+              <span class="text-[11px] text-slate-400">Монтаж полотен, коробок и фурнитуры</span>
+            </div>
+          </div>
+
+          <div id="step1ValidationMsg" class="hidden text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5"></div>
+        </div>
+
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+            <h2 class="text-base sm:text-lg font-semibold text-graphite flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emeraldbrand"></span>
+              Выберите вариант отделки
+            </h2>
+            <span class="text-xs text-slate-500">Нажмите на карточку для выбора тарифа</span>
+          </div>
+
+          <div id="tariffCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+          <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="text-xs text-slate-500">
+              Выбран пакет: <strong id="selectedTariffSummaryLabel" class="text-graphite">Комфорт</strong>. Объёмы и материалы можно скорректировать на следующем шаге.
+            </div>
+            <button
+              type="button"
+              id="goToStep2Btn"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emeraldbrand hover:bg-emeraldbrand-600 text-white font-semibold text-sm shadow-sm shadow-emeraldbrand/25 active:scale-[0.99] transition cursor-pointer shrink-0"
+            >
+              <span>Перейти к смете и материалам</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЭТАП 2 -->
+    <section id="step-2" class="step-section hidden space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emeraldbrand-700 bg-emeraldbrand-50 border border-emeraldbrand-100 px-3 py-1 rounded-full">
+              Шаг 2 из 3
+            </span>
+            <span id="step2TariffPill" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-graphite text-white">
+              Пакет: Комфорт
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-graphite tracking-tight mt-2">
+            Смета работ и подбор материалов
+          </h1>
+          <p class="text-sm text-slate-600 mt-1">
+            Проверьте рассчитанные объёмы, при необходимости поправьте значения и выберите материалы из подборки пакета.
+          </p>
+        </div>
+
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-1.5 shadow-xs flex flex-wrap items-center gap-1 shrink-0">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-2.5 hidden sm:inline">Пакет:</span>
+          <div id="step2QuickTariffSwitcher" class="flex flex-wrap gap-1"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs">
+          <div class="text-xs font-medium text-slate-500">Работы по смете</div>
+          <div id="step2LiveWorksSum" class="text-xl sm:text-2xl font-bold text-graphite mt-1 tabular-nums">0 ₽</div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs">
+          <div class="text-xs font-medium text-slate-500">Материалы по подборке</div>
+          <div id="step2LiveMaterialsSum" class="text-xl sm:text-2xl font-bold text-graphite mt-1 tabular-nums">0 ₽</div>
+        </div>
+        <div class="bg-graphite text-white rounded-2xl p-4 shadow-xs">
+          <div class="text-xs font-medium text-slate-300">Предварительный итог</div>
+          <div id="step2LiveTotalSum" class="text-xl sm:text-2xl font-bold text-emeraldbrand mt-1 tabular-nums">0 ₽</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold text-graphite">Ведомость работ и объёмов</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Объёмы рассчитаны по параметрам квартиры; можно отредактировать вручную или пересчитать по формулам.</p>
+          </div>
+          <button
+            type="button"
+            id="recalculateVolumesBtn"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-graphite transition cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5 text-emeraldbrand-700" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Пересчитать объёмы из параметров</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[680px]">
+            <thead>
+              <tr class="bg-slate-50/90 border-b border-slate-200/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <th class="py-3 px-5">Наименование работы</th>
+                <th class="py-3 px-3 w-20 text-center">Ед.</th>
+                <th class="py-3 px-3 w-32 text-right">Объём</th>
+                <th class="py-3 px-3 w-36 text-right">Цена за ед.</th>
+                <th class="py-3 px-5 w-40 text-right">Сумма работ</th>
+              </tr>
+            </thead>
+            <tbody id="worksTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-graphite">Подборка материалов для пакета «<span id="materialsTariffTitle" class="text-emeraldbrand-700">Комфорт</span>»</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Визуальный выбор покрытий с артикулами, ценами за м², фасовкой, ссылками на Лемана ПРО Тюмень и превью.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              id="toggleCustomMaterialFormBtn"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-emeraldbrand-50 hover:bg-emeraldbrand-100 text-emeraldbrand-700 border border-emeraldbrand-200/70 transition cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span>Добавить свой материал</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="customMaterialForm" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-600">Новая позиция материала</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <select id="customMatCategory" class="bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-graphite focus:outline-none focus:border-emeraldbrand"></select>
+            <input
+              type="text"
+              id="customMatName"
+              placeholder="Название материала"
+              class="bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-graphite focus:outline-none focus:border-emeraldbrand"
+            />
+            <input
+              type="text"
+              id="customMatUnit"
+              placeholder="Ед. (м², шт., уп.)"
+              value="м²"
+              class="bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-graphite focus:outline-none focus:border-emeraldbrand"
+            />
+            <input
+              type="number"
+              id="customMatQty"
+              placeholder="Кол-во"
+              min="0"
+              step="0.1"
+              value="10"
+              class="clean-num bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-graphite focus:outline-none focus:border-emeraldbrand"
+            />
+            <input
+              type="number"
+              id="customMatPrice"
+              placeholder="Цена за ед. (₽)"
+              min="0"
+              step="50"
+              value="1500"
+              class="clean-num bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-graphite focus:outline-none focus:border-emeraldbrand"
+            />
+          </div>
+          <div class="flex items-center justify-end gap-2">
+            <button type="button" id="cancelCustomMaterialBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-200/70 transition cursor-pointer">
+              Отмена
+            </button>
+            <button type="button" id="saveCustomMaterialBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emeraldbrand hover:bg-emeraldbrand-600 text-white transition cursor-pointer">
+              Добавить в смету
+            </button>
+          </div>
+        </div>
+
+        <div id="materialsCategoriesContainer" class="space-y-5"></div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+        <button
+          type="button"
+          id="backToStep1Btn"
+          class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-graphite font-semibold text-sm transition cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Назад к параметрам</span>
+        </button>
+
+        <button
+          type="button"
+          id="goToStep3Btn"
+          class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emeraldbrand hover:bg-emeraldbrand-600 text-white font-semibold text-sm shadow-sm shadow-emeraldbrand/25 transition cursor-pointer"
+        >
+          <span>Сформировать итог и смету исполнителя</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ЭТАП 3 -->
+    <section id="step-3" class="step-section hidden space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
+        <div>
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emeraldbrand-700 bg-emeraldbrand-50 border border-emeraldbrand-100 px-3 py-1 rounded-full">
+            Шаг 3 из 3
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-bold text-graphite tracking-tight mt-2">
+            Итог для клиента и смета для исполнителя
+          </h1>
+          <p class="text-sm text-slate-600 mt-1">
+            Прозрачная разбивка стоимости работ и материалов для заказчика и готовый рабочий наряд для мастера/бригады.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            id="copyExecutorBtn"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-graphite shadow-2xs transition cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-emeraldbrand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span>Копировать смету исполнителя</span>
+          </button>
+
+          <button
+            type="button"
+            id="printReportBtn"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-emeraldbrand hover:bg-emeraldbrand-600 text-white shadow-sm transition cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>Печать / Сохранить PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-7 space-y-6 print-card">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emeraldbrand-700">Коммерческое предложение</span>
+            <h2 class="text-xl font-bold text-graphite mt-0.5">Расчёт стоимости ремонта для клиента</h2>
+            <p id="reportMetaSubtitle" class="text-xs text-slate-500 mt-1"></p>
+          </div>
+          <div id="clientParamsChips" class="flex flex-wrap gap-1.5 text-xs"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5">
+            <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Стоимость работ</div>
+            <div id="finalWorksSum" class="text-2xl sm:text-3xl font-bold text-graphite mt-1.5 tabular-nums">0 ₽</div>
+            <div id="finalWorksPerSqm" class="text-xs text-slate-500 mt-1 tabular-nums">0 ₽ / м²</div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200/90 bg-slate-50/70 p-5">
+            <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Стоимость материалов</div>
+            <div id="finalMaterialsSum" class="text-2xl sm:text-3xl font-bold text-graphite mt-1.5 tabular-nums">0 ₽</div>
+            <div id="finalMaterialsPerSqm" class="text-xs text-slate-500 mt-1 tabular-nums">0 ₽ / м²</div>
+          </div>
+
+          <div class="rounded-2xl bg-graphite text-white p-5 shadow-sm">
+            <div class="text-xs font-semibold uppercase tracking-wider text-emeraldbrand">Итого под ключ (ориентир)</div>
+            <div id="finalGrandTotal" class="text-2xl sm:text-3xl font-bold text-white mt-1.5 tabular-nums">0 ₽</div>
+            <div id="finalTotalPerSqm" class="text-xs text-slate-300 mt-1 tabular-nums">0 ₽ / м²</div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-graphite uppercase tracking-wider">Выбранные материалы</h3>
+          <div id="clientSelectedMaterialsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs sm:text-sm"></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-7 space-y-6 print-card print-break-before">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Рабочая документация</span>
+            <h2 class="text-xl font-bold text-graphite mt-0.5">Смета для исполнителя работ</h2>
+          </div>
+          <div id="executorHeaderMeta" class="text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl"></div>
+        </div>
+
+        <div class="space-y-2.5">
+          <h3 class="text-sm font-bold text-graphite">1. Перечень и объёмы работ</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[640px] text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <th class="py-2.5 px-3 w-10">#</th>
+                  <th class="py-2.5 px-3">Наименование работы</th>
+                  <th class="py-2.5 px-3 w-20 text-center">Ед.</th>
+                  <th class="py-2.5 px-3 w-28 text-right">Объём</th>
+                  <th class="py-2.5 px-3 w-32 text-right">Расценка</th>
+                  <th class="py-2.5 px-3 w-36 text-right">Сумма</th>
+                </tr>
+              </thead>
+              <tbody id="executorWorksTableBody" class="divide-y divide-slate-100"></tbody>
+              <tfoot>
+                <tr class="bg-slate-50/90 font-bold text-graphite border-t-2 border-slate-200">
+                  <td colspan="5" class="py-3 px-3 text-right">Итого по работам:</td>
+                  <td id="executorWorksTotalCell" class="py-3 px-3 text-right tabular-nums">0 ₽</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-2.5 pt-2">
+          <h3 class="text-sm font-bold text-graphite">2. Спецификация материалов к закупке</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[640px] text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <th class="py-2.5 px-3 w-44">Раздел</th>
+                  <th class="py-2.5 px-3">Материал</th>
+                  <th class="py-2.5 px-3 w-28 text-right">Кол-во</th>
+                  <th class="py-2.5 px-3 w-20 text-center">Ед.</th>
+                  <th class="py-2.5 px-3 w-32 text-right">Цена</th>
+                  <th class="py-2.5 px-3 w-36 text-right">Сумма</th>
+                </tr>
+              </thead>
+              <tbody id="executorMaterialsTableBody" class="divide-y divide-slate-100"></tbody>
+              <tfoot>
+                <tr class="bg-slate-50/90 font-bold text-graphite border-t-2 border-slate-200">
+                  <td colspan="5" class="py-3 px-3 text-right">Итого по материалам:</td>
+                  <td id="executorMaterialsTotalCell" class="py-3 px-3 text-right tabular-nums">0 ₽</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 no-print">
+        <button
+          type="button"
+          id="backToStep2Btn"
+          class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-graphite font-semibold text-sm transition cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Вернуться к правке сметы</span>
+        </button>
+
+        <button
+          type="button"
+          id="newCalculationBtn"
+          class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-graphite hover:bg-graphite-800 text-white font-semibold text-sm transition cursor-pointer"
+        >
+          <span>Новый расчёт для клиента</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТОР -->
+  <div id="catalogEditorModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-graphite/60 backdrop-blur-xs p-4 no-print">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="px-5 sm:px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-graphite">Настройка тарифов, расценок и материалов</h2>
+          <p class="text-xs text-slate-500">Изменения сразу применяются к расчётам и сохраняются автоматически</p>
+        </div>
+        <button type="button" id="closeCatalogEditorBtn" class="w-9 h-9 rounded-xl hover:bg-slate-100 text-slate-500 flex items-center justify-center transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="px-5 sm:px-6 pt-3 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-2">
+        <button type="button" data-editor-tab="tariffs" class="editor-tab-btn px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold border-b-2 transition cursor-pointer">
+          Пакеты отделки
+        </button>
+        <button type="button" data-editor-tab="works" class="editor-tab-btn px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold border-b-2 transition cursor-pointer">
+          Расценки работ
+        </button>
+        <button type="button" data-editor-tab="materials" class="editor-tab-btn px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold border-b-2 transition cursor-pointer">
+          Подборки материалов
+        </button>
+        <button type="button" data-editor-tab="images" class="editor-tab-btn px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold border-b-2 transition cursor-pointer">
+          Картинки материалов
+        </button>
+      </div>
+
+      <div id="catalogEditorBody" class="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1"></div>
+
+      <div class="px-5 sm:px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <button type="button" id="resetCatalogDefaultsBtn" class="text-xs font-semibold text-rose-600 hover:text-rose-700 transition cursor-pointer">
+            Сбросить к заводским значениям
+          </button>
+          <button type="button" id="exportStandaloneHtmlBtn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-200/80 hover:bg-slate-200 text-graphite transition cursor-pointer">
+            Скачать HTML с вшитыми фото
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="cancelCatalogEditorBtn" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+            Закрыть
+          </button>
+          <button type="button" id="saveCatalogEditorBtn" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emeraldbrand hover:bg-emeraldbrand-600 text-white transition cursor-pointer">
+            Сохранить изменения
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО: ПРОСМОТР МАТЕРИАЛА -->
+  <div id="materialPreviewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-graphite/65 backdrop-blur-xs p-4 no-print">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div id="previewModalSku" class="text-[11px] font-bold uppercase tracking-wider text-emeraldbrand-700"></div>
+          <h3 id="previewModalTitle" class="text-base sm:text-lg font-bold text-graphite truncate"></h3>
+        </div>
+        <button type="button" id="closeMaterialPreviewBtn" class="w-9 h-9 rounded-xl hover:bg-slate-100 text-slate-500 flex items-center justify-center transition cursor-pointer shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[82vh] overflow-y-auto">
+        <div class="relative w-full h-56 sm:h-64 rounded-2xl border border-slate-200 overflow-hidden bg-slate-100">
+          <div id="previewModalSwatch" class="swatch-surface absolute inset-0"></div>
+          <img id="previewModalImg" src="" alt="" class="relative z-10 w-full h-full object-cover hidden" onerror="this.classList.add('hidden')" />
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 rounded-xl p-3.5 border border-slate-200/80">
+          <div>
+            <div id="previewModalPrice" class="text-lg font-bold text-graphite tabular-nums"></div>
+            <div id="previewModalPack" class="text-xs text-slate-500"></div>
+          </div>
+          <div class="text-right">
+            <div id="previewModalSpecs" class="text-xs font-semibold text-slate-700"></div>
+            <a id="previewModalCatalogLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 text-xs font-semibold text-emeraldbrand-700 hover:underline">
+              Открыть на Лемана ПРО Тюмень ↗
+            </a>
+          </div>
+        </div>
+
+        <p id="previewModalNote" class="text-xs text-slate-600 leading-relaxed"></p>
+
+        <div class="rounded-xl border border-slate-200 p-3.5 space-y-2.5 bg-slate-50/50">
+          <div class="text-xs font-bold text-graphite">Фотография образца для показа клиенту</div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              id="previewCustomUrlInput"
+              placeholder="Вставьте ссылку на картинку (https://...)"
+              class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-graphite focus:outline-none focus:border-emeraldbrand"
+            />
+            <button type="button" id="applyPreviewUrlBtn" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-graphite hover:bg-graphite-800 text-white transition cursor-pointer shrink-0">
+              Применить URL
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-graphite cursor-pointer transition">
+              <span>Загрузить файл с устройства</span>
+              <input type="file" id="previewFileInput" accept="image/*" class="hidden" />
+            </label>
+            <button type="button" id="resetPreviewImageBtn" class="text-xs font-semibold text-rose-600 hover:text-rose-700 cursor-pointer">
+              Сбросить фото к фактуре
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+        <button type="button" id="cancelPreviewModalBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+          Закрыть
+        </button>
+        <button type="button" id="selectItemFromPreviewBtn" class="px-5 py-2 rounded-xl text-xs font-semibold bg-emeraldbrand hover:bg-emeraldbrand-600 text-white transition cursor-pointer">
+          Выбрать в смету
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    (function () {
+      'use strict';
+
+      function deepClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
+
+      const DEFAULT_TARIFFS = {
+        standard: {
+          id: 'standard',
+          name: 'Стандарт',
+          badge: 'Базовый пакет',
+          workPricePerSqm: 6900,
+          workMultiplier: 0.9,
+          shortDesc: 'Практичный ремонт с обоями на стенах, керамогранитом 600×1200 в санузлах, наливным полом и плинтусом ПВХ.',
+          highlights: [
+            'Стены (без с/у): грунт, шпатлёвка, ошкуривание, обои',
+            'С/У: гидроизоляция, керамогранит 600×1200 (пол и стены), цементная затирка',
+            'Пол (без с/у): наливной пол, кварцвинил / ламинат, пластиковый плинтус',
+          ],
+        },
+        comfort: {
+          id: 'comfort',
+          name: 'Комфорт',
+          badge: 'Популярный выбор',
+          workPricePerSqm: 8900,
+          workMultiplier: 1.0,
+          shortDesc: 'Расширенный набор отделки с акцентной стеной из керамогранита 600×1200 и выбором покрытий для пола, стен и санузлов.',
+          highlights: [
+            'Стены (без с/у): подготовка, шпатлёвка в 2 слоя, обои или Dulux Bindo 7 по RAL',
+            'С/У: керамогранит 600×1200 (пол, стены и акцентная стена), короб под инсталляцию и ванну',
+            'Пол (без с/у): наливной пол, укладка кварцвинила или ламината',
+          ],
+        },
+        comfort_plus: {
+          id: 'comfort_plus',
+          name: 'Комфорт плюс',
+          badge: 'Усиленный стандарт',
+          workPricePerSqm: 11400,
+          workMultiplier: 1.18,
+          shortDesc: 'Штукатурка под маяк, стеклохолст, покраска стен, керамогранит в прихожей и эпоксидная затирка швов.',
+          highlights: [
+            'Стены: штукатурка под маяк, стеклохолст, шпатлёвка в 2 слоя, покраска / обои',
+            'С/У и прихожая: керамогранит 600×1200 (пол, стены, акцентная стена), скрытый люк, эпоксидная затирка',
+            'Потолок: монтаж багета с демпферной лентой и короба для вытяжки',
+          ],
+        },
+        premium: {
+          id: 'premium',
+          name: 'Премиум',
+          badge: 'Максимальный уровень',
+          workPricePerSqm: 14500,
+          workMultiplier: 1.38,
+          shortDesc: 'Декоративная штукатурка, укладка покрытий ёлочкой, отдельный керамогранит для прихожей и премиальная сантехника.',
+          highlights: [
+            'Стены: штукатурка под маяк, стеклохолст, декоративная штукатурка / обои / RAL',
+            'Керамогранит 600×1200: пол, стены, акцентная стена и зона прихожей',
+            'Пол: укладка кварцвинила/ламината ёлочкой, плинтус под покраску, эпоксидная затирка',
+          ],
+        },
+      };
+
+      const TARIFF_WORK_PLANS = {
+        standard: [
+          { id: 'w_st_1', section: 'Устройство стен (без сан узла)', name: 'Предварительное грунтования стен', unit: 'м²', volumeMode: 'walls', basePrice: 90 },
+          { id: 'w_st_2', section: 'Устройство стен (без сан узла)', name: 'Шпатлевка стен 1 слой', unit: 'м²', volumeMode: 'walls', basePrice: 240 },
+          { id: 'w_st_3', section: 'Устройство стен (без сан узла)', name: 'Грунтование стен после шпатлеки', unit: 'м²', volumeMode: 'walls', basePrice: 90 },
+          { id: 'w_st_4', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 2 слой', unit: 'м²', volumeMode: 'walls', basePrice: 220 },
+          { id: 'w_st_5', section: 'Устройство стен (без сан узла)', name: 'Ошкуривание стен под обои', unit: 'м²', volumeMode: 'walls', basePrice: 130 },
+          { id: 'w_st_6', section: 'Устройство стен (без сан узла)', name: 'Поклейка Обоев', unit: 'м²', volumeMode: 'walls', basePrice: 320 },
+
+          { id: 'w_st_7', section: 'Устройство стен сан узла', name: 'Огрунтовка поверхности стены в ванной комнате', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 100 },
+          { id: 'w_st_8', section: 'Устройство стен сан узла', name: 'Штукатурка стен цементной смесью', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 650 },
+          { id: 'w_st_9', section: 'Устройство стен сан узла', name: 'Монтаж короба ГКЛ/ГКЛВ инсталяция', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3800 },
+          { id: 'w_st_10', section: 'Устройство стен сан узла', name: 'Монтаж короба из ГКЛ/ГКЛВ под ванную', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3200 },
+          { id: 'w_st_11', section: 'Устройство стен сан узла', name: 'Монтаж люка (Пластик)', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 1400 },
+          { id: 'w_st_12', section: 'Устройство стен сан узла', name: 'Устройство вент коробов', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 2600 },
+          { id: 'w_st_13', section: 'Устройство стен сан узла', name: 'Формирование дверных проемов по высоте, ширине', unit: 'шт.', volumeMode: 'doors', basePrice: 1800 },
+          { id: 'w_st_14', section: 'Устройство стен сан узла', name: 'Запил керамогранита под углом 45 (внешний угол)', unit: 'м.п.', volumeMode: 'rooms_plus_wet', basePrice: 950 },
+          { id: 'w_st_15', section: 'Устройство стен сан узла', name: 'Укладка керамогранита (плитки) на стены формат 600х1200 мм', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 1850 },
+          { id: 'w_st_16', section: 'Устройство стен сан узла', name: 'Затирка швов цементной затиркой', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 320 },
+
+          { id: 'w_st_17', section: 'Устройство пола (без сан узла)', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'floor_dry', basePrice: 90 },
+          { id: 'w_st_18', section: 'Устройство пола (без сан узла)', name: 'Наливной пол', unit: 'м²', volumeMode: 'floor_dry', basePrice: 480 },
+          { id: 'w_st_19', section: 'Устройство пола (без сан узла)', name: 'Укладка кварц винил/ламинат', unit: 'м²', volumeMode: 'floor_dry', basePrice: 550 },
+          { id: 'w_st_20', section: 'Устройство пола (без сан узла)', name: 'Установка плинтуса пластик', unit: 'м²', volumeMode: 'total_area', basePrice: 320 },
+
+          { id: 'w_st_21', section: 'Устройство пола сан узел', name: 'Грунтование перед гидроизоляцией', unit: 'м²', volumeMode: 'bathrooms', basePrice: 120 },
+          { id: 'w_st_22', section: 'Устройство пола сан узел', name: 'Гидроизоляция обмазочная/проникающая (пол/периметр)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 550 },
+          { id: 'w_st_23', section: 'Устройство пола сан узел', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'bathrooms', basePrice: 120 },
+          { id: 'w_st_24', section: 'Устройство пола сан узел', name: 'Наливной пол', unit: 'м²', volumeMode: 'bathrooms', basePrice: 520 },
+          { id: 'w_st_25', section: 'Устройство пола сан узел', name: 'Укладка керамогранита (плитки) на пол по прямой форматом 600х1200', unit: 'м²', volumeMode: 'bathrooms', basePrice: 1850 },
+          { id: 'w_st_26', section: 'Устройство пола сан узел', name: 'Затирка швов цементной затиркой', unit: 'м²', volumeMode: 'bathrooms', basePrice: 320 },
+
+          { id: 'w_st_27', section: 'Устройство потолка', name: 'Монтаж багета с демферной лентой (пластиковый багет + резиновая демферная лента)', unit: 'м²', volumeMode: 'total_area', basePrice: 280 },
+        ],
+        comfort: [
+          { id: 'w_cm_1', section: 'Устройство стен (без сан узла)', name: 'Предварительное грунтования стен', unit: 'м²', volumeMode: 'walls', basePrice: 100 },
+          { id: 'w_cm_2', section: 'Устройство стен (без сан узла)', name: 'Шпатлевка стен 1 слой', unit: 'м²', volumeMode: 'walls', basePrice: 250 },
+          { id: 'w_cm_3', section: 'Устройство стен (без сан узла)', name: 'Грунтование стен после шпатлеки', unit: 'м²', volumeMode: 'walls', basePrice: 100 },
+          { id: 'w_cm_4', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 2 слой', unit: 'м²', volumeMode: 'walls', basePrice: 230 },
+          { id: 'w_cm_5', section: 'Устройство стен (без сан узла)', name: 'Ошкуривание стен под обои', unit: 'м²', volumeMode: 'walls', basePrice: 140 },
+          { id: 'w_cm_6', section: 'Устройство стен (без сан узла)', name: 'Поклейка Обоев', unit: 'м²', volumeMode: 'walls', basePrice: 340 },
+
+          { id: 'w_cm_7', section: 'Устройство стен сан узла', name: 'Огрунтовка поверхности стены в ванной комнате', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 110 },
+          { id: 'w_cm_8', section: 'Устройство стен сан узла', name: 'Штукатурка стен цементной смесью', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 690 },
+          { id: 'w_cm_9', section: 'Устройство стен сан узла', name: 'Монтаж короба ГКЛ/ГКЛВ инсталяция', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 4000 },
+          { id: 'w_cm_10', section: 'Устройство стен сан узла', name: 'Монтаж короба из ГКЛ/ГКЛВ под ванную', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3400 },
+          { id: 'w_cm_11', section: 'Устройство стен сан узла', name: 'Монтаж люка (Пластик)', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 1500 },
+          { id: 'w_cm_12', section: 'Устройство стен сан узла', name: 'Устройство вент коробов', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 2800 },
+          { id: 'w_cm_13', section: 'Устройство стен сан узла', name: 'Формирование дверных проемов по высоте, ширине', unit: 'шт.', volumeMode: 'doors', basePrice: 1900 },
+          { id: 'w_cm_14', section: 'Устройство стен сан узла', name: 'Запил керамогранита под углом 45 (внешний угол)', unit: 'м.п.', volumeMode: 'rooms_plus_wet', basePrice: 1000 },
+          { id: 'w_cm_15', section: 'Устройство стен сан узла', name: 'Укладка керамогранита (плитки) на стены формат 600х1200 мм', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 1950 },
+          { id: 'w_cm_16', section: 'Устройство стен сан узла', name: 'Укладка 2 варианта керамогранита (плитки) на стены формат 600х1200 мм (Акцентная стена)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2150 },
+          { id: 'w_cm_17', section: 'Устройство стен сан узла', name: 'Затирка швов цементной затиркой', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 350 },
+
+          { id: 'w_cm_18', section: 'Устройство пола (без сан узла)', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'floor_dry', basePrice: 100 },
+          { id: 'w_cm_19', section: 'Устройство пола (без сан узла)', name: 'Наливной пол', unit: 'м²', volumeMode: 'floor_dry', basePrice: 500 },
+          { id: 'w_cm_20', section: 'Устройство пола (без сан узла)', name: 'Укладка кварц винил/ламинат', unit: 'м²', volumeMode: 'floor_dry', basePrice: 590 },
+          { id: 'w_cm_21', section: 'Устройство пола (без сан узла)', name: 'Установка плинтуса пластик', unit: 'м²', volumeMode: 'total_area', basePrice: 340 },
+
+          { id: 'w_cm_22', section: 'Устройство пола сан узел', name: 'Грунтование перед гидроизоляцией', unit: 'м²', volumeMode: 'bathrooms', basePrice: 130 },
+          { id: 'w_cm_23', section: 'Устройство пола сан узел', name: 'Гидроизоляция обмазочная/проникающая (пол/периметр)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 590 },
+          { id: 'w_cm_24', section: 'Устройство пола сан узел', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'bathrooms', basePrice: 130 },
+          { id: 'w_cm_25', section: 'Устройство пола сан узел', name: 'Наливной пол', unit: 'м²', volumeMode: 'bathrooms', basePrice: 540 },
+          { id: 'w_cm_26', section: 'Устройство пола сан узел', name: 'Укладка керамогранита (плитки) на пол по прямой форматом 600х1200', unit: 'м²', volumeMode: 'bathrooms', basePrice: 1950 },
+          { id: 'w_cm_27', section: 'Устройство пола сан узел', name: 'Затирка швов цементной затиркой', unit: 'м²', volumeMode: 'bathrooms', basePrice: 350 },
+
+          { id: 'w_cm_28', section: 'Устройство потолка', name: 'Монтаж багета с демферной лентой (пластиковый багет + резиновая демферная лента)', unit: 'м²', volumeMode: 'total_area', basePrice: 300 },
+        ],
+        comfort_plus: [
+          { id: 'w_cp_1', section: 'Устройство стен (без сан узла)', name: 'Предварительное грунтования стен', unit: 'м²', volumeMode: 'walls', basePrice: 110 },
+          { id: 'w_cp_2', section: 'Устройство стен (без сан узла)', name: 'Штукатурка стен под маяк', unit: 'м²', volumeMode: 'walls', basePrice: 680 },
+          { id: 'w_cp_3', section: 'Устройство стен (без сан узла)', name: 'Грунтование стен после штукатурки', unit: 'м²', volumeMode: 'walls', basePrice: 110 },
+          { id: 'w_cp_4', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 1 слой', unit: 'м²', volumeMode: 'walls', basePrice: 260 },
+          { id: 'w_cp_5', section: 'Устройство стен (без сан узла)', name: 'Оклейка стен стеклохолстом', unit: 'м²', volumeMode: 'walls', basePrice: 290 },
+          { id: 'w_cp_6', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 2 слой', unit: 'м²', volumeMode: 'walls', basePrice: 250 },
+          { id: 'w_cp_7', section: 'Устройство стен (без сан узла)', name: 'Грунтовка стен перед покраской', unit: 'м²', volumeMode: 'walls', basePrice: 110 },
+          { id: 'w_cp_8', section: 'Устройство стен (без сан узла)', name: 'Покраска стен', unit: 'м²', volumeMode: 'walls', basePrice: 360 },
+
+          { id: 'w_cp_9', section: 'Устройство стен сан узла', name: 'Огрунтовка поверхности стены в ванной комнате', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 120 },
+          { id: 'w_cp_10', section: 'Устройство стен сан узла', name: 'Штукатурка стен цементной смесью', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 720 },
+          { id: 'w_cp_11', section: 'Устройство стен сан узла', name: 'Монтаж короба ГКЛ/ГКЛВ инсталяция', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 4200 },
+          { id: 'w_cp_12', section: 'Устройство стен сан узла', name: 'Монтаж короба из ГКЛ/ГКЛВ под ванную', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3600 },
+          { id: 'w_cp_13', section: 'Устройство стен сан узла', name: 'Монтаж люка скрытого монтажа (плитка на магнитах для доступа к сетям)', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 2600 },
+          { id: 'w_cp_14', section: 'Устройство стен сан узла', name: 'Устройство вент коробов', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3000 },
+          { id: 'w_cp_15', section: 'Устройство стен сан узла', name: 'Формирование дверных проемов по высоте, ширине', unit: 'шт.', volumeMode: 'doors', basePrice: 2000 },
+          { id: 'w_cp_16', section: 'Устройство стен сан узла', name: 'Запил керамогранита под углом 45 (внешний угол)', unit: 'м.п.', volumeMode: 'rooms_plus_wet', basePrice: 1100 },
+          { id: 'w_cp_17', section: 'Устройство стен сан узла', name: 'Укладка керамогранита (плитки) на стены формат 600х1200 мм', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 2100 },
+          { id: 'w_cp_18', section: 'Устройство стен сан узла', name: 'Укладка 2 варианта керамогранита (плитки) на стены формат 600х1200 мм (Акцентная стена)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2300 },
+          { id: 'w_cp_19', section: 'Устройство стен сан узла', name: 'Затирка швов эпоксидной затиркой', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 650 },
+
+          { id: 'w_cp_20', section: 'Устройство пола (без сан узла)', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'floor_dry', basePrice: 110 },
+          { id: 'w_cp_21', section: 'Устройство пола (без сан узла)', name: 'Наливной пол', unit: 'м²', volumeMode: 'floor_dry', basePrice: 540 },
+          { id: 'w_cp_22', section: 'Устройство пола (без сан узла)', name: 'Укладка кварц винил/ламинат', unit: 'м²', volumeMode: 'floor_dry', basePrice: 640 },
+          { id: 'w_cp_23', section: 'Устройство пола (без сан узла)', name: 'Укладка керамогранита в зоне прихожей', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2050 },
+          { id: 'w_cp_24', section: 'Устройство пола (без сан узла)', name: 'Установка плинтуса под покраску', unit: 'м²', volumeMode: 'total_area', basePrice: 460 },
+
+          { id: 'w_cp_25', section: 'Устройство пола сан узел', name: 'Грунтование перед гидроизоляцией', unit: 'м²', volumeMode: 'bathrooms', basePrice: 140 },
+          { id: 'w_cp_26', section: 'Устройство пола сан узел', name: 'Гидроизоляция обмазочная/проникающая (пол/периметр)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 640 },
+          { id: 'w_cp_27', section: 'Устройство пола сан узел', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'bathrooms', basePrice: 140 },
+          { id: 'w_cp_28', section: 'Устройство пола сан узел', name: 'Наливной пол', unit: 'м²', volumeMode: 'bathrooms', basePrice: 580 },
+          { id: 'w_cp_29', section: 'Устройство пола сан узел', name: 'Укладка керамогранита (плитки) на пол по прямой форматом 600х1200', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2100 },
+          { id: 'w_cp_30', section: 'Устройство пола сан узел', name: 'Затирка швов эпоксидной затиркой', unit: 'м²', volumeMode: 'bathrooms', basePrice: 650 },
+
+          { id: 'w_cp_31', section: 'Устройство потолка', name: 'Монтаж багета с демферной лентой (пластиковый багет + резиновая демферная лента)', unit: 'м²', volumeMode: 'total_area', basePrice: 320 },
+          { id: 'w_cp_32', section: 'Устройство потолка', name: 'Монтаж короба для вытяжки', unit: 'шт.', volumeMode: 'rooms_plus_wet', basePrice: 2400 },
+        ],
+        premium: [
+          { id: 'w_pr_1', section: 'Устройство стен (без сан узла)', name: 'Предварительное грунтования стен', unit: 'м²', volumeMode: 'walls', basePrice: 120 },
+          { id: 'w_pr_2', section: 'Устройство стен (без сан узла)', name: 'Штукатурка стен под маяк', unit: 'м²', volumeMode: 'walls', basePrice: 740 },
+          { id: 'w_pr_3', section: 'Устройство стен (без сан узла)', name: 'Грунтование стен после штукатурки', unit: 'м²', volumeMode: 'walls', basePrice: 120 },
+          { id: 'w_pr_4', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 1 слой', unit: 'м²', volumeMode: 'walls', basePrice: 280 },
+          { id: 'w_pr_5', section: 'Устройство стен (без сан узла)', name: 'Оклейка стен стеклохолстом', unit: 'м²', volumeMode: 'walls', basePrice: 320 },
+          { id: 'w_pr_6', section: 'Устройство стен (без сан узла)', name: 'Шпатлевание стен 2 слой', unit: 'м²', volumeMode: 'walls', basePrice: 270 },
+          { id: 'w_pr_7', section: 'Устройство стен (без сан узла)', name: 'Грунтование стен перед декоративкой', unit: 'м²', volumeMode: 'walls', basePrice: 130 },
+          { id: 'w_pr_8', section: 'Устройство стен (без сан узла)', name: 'Нанесение декоративной штукатурки', unit: 'м²', volumeMode: 'walls', basePrice: 890 },
+
+          { id: 'w_pr_9', section: 'Устройство стен сан узла', name: 'Огрунтовка поверхности стены в ванной комнате', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 130 },
+          { id: 'w_pr_10', section: 'Устройство стен сан узла', name: 'Штукатурка стен цементной смесью', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 780 },
+          { id: 'w_pr_11', section: 'Устройство стен сан узла', name: 'Монтаж короба ГКЛ/ГКЛВ инсталяция', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 4500 },
+          { id: 'w_pr_12', section: 'Устройство стен сан узла', name: 'Монтаж короба из ГКЛ/ГКЛВ под ванную', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3900 },
+          { id: 'w_pr_13', section: 'Устройство стен сан узла', name: 'Монтаж люка скрытого монтажа (плитка на магнитах для доступа к сетям)', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 2900 },
+          { id: 'w_pr_14', section: 'Устройство стен сан узла', name: 'Устройство вент коробов', unit: 'шт.', volumeMode: 'bathrooms', basePrice: 3200 },
+          { id: 'w_pr_15', section: 'Устройство стен сан узла', name: 'Формирование дверных проемов по высоте, ширине', unit: 'шт.', volumeMode: 'doors', basePrice: 2200 },
+          { id: 'w_pr_16', section: 'Устройство стен сан узла', name: 'Запил керамогранита под углом 45 (внешний угол)', unit: 'м.п.', volumeMode: 'rooms_plus_wet', basePrice: 1200 },
+          { id: 'w_pr_17', section: 'Устройство стен сан узла', name: 'Укладка керамогранита (плитки) на стены формат 600х1200 мм', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 2300 },
+          { id: 'w_pr_18', section: 'Устройство стен сан узла', name: 'Укладка 2 варианта керамогранита (плитки) на стены формат 600х1200 мм (Акцентная стена)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2500 },
+          { id: 'w_pr_19', section: 'Устройство стен сан узла', name: 'Затирка швов эпоксидной затиркой', unit: 'м²', volumeMode: 'wet_tiles', basePrice: 720 },
+
+          { id: 'w_pr_20', section: 'Устройство пола (без сан узла)', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'floor_dry', basePrice: 120 },
+          { id: 'w_pr_21', section: 'Устройство пола (без сан узла)', name: 'Наливной пол', unit: 'м²', volumeMode: 'floor_dry', basePrice: 590 },
+          { id: 'w_pr_22', section: 'Устройство пола (без сан узла)', name: 'Укладка кварц винил/ламинат елочка', unit: 'м²', volumeMode: 'floor_dry', basePrice: 890 },
+          { id: 'w_pr_23', section: 'Устройство пола (без сан узла)', name: 'Укладка керамогранита в зоне прихожей', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2250 },
+          { id: 'w_pr_24', section: 'Устройство пола (без сан узла)', name: 'Установка плинтуса под покраску', unit: 'м²', volumeMode: 'total_area', basePrice: 520 },
+
+          { id: 'w_pr_25', section: 'Устройство пола сан узел', name: 'Грунтование перед гидроизоляцией', unit: 'м²', volumeMode: 'bathrooms', basePrice: 150 },
+          { id: 'w_pr_26', section: 'Устройство пола сан узел', name: 'Гидроизоляция обмазочная/проникающая (пол/периметр)', unit: 'м²', volumeMode: 'bathrooms', basePrice: 690 },
+          { id: 'w_pr_27', section: 'Устройство пола сан узел', name: 'Грунтование перед наливным полом', unit: 'м²', volumeMode: 'bathrooms', basePrice: 150 },
+          { id: 'w_pr_28', section: 'Устройство пола сан узел', name: 'Наливной пол', unit: 'м²', volumeMode: 'bathrooms', basePrice: 620 },
+          { id: 'w_pr_29', section: 'Устройство пола сан узел', name: 'Укладка керамогранита (плитки) на пол форматом 600х1200', unit: 'м²', volumeMode: 'bathrooms', basePrice: 2300 },
+          { id: 'w_pr_30', section: 'Устройство пола сан узел', name: 'Затирка швов эпоксидной затиркой', unit: 'м²', volumeMode: 'bathrooms', basePrice: 720 },
+
+          { id: 'w_pr_31', section: 'Устройство потолка', name: 'Монтаж багета с демферной лентой (пластиковый багет + резиновая демферная лента)', unit: 'м²', volumeMode: 'total_area', basePrice: 350 },
+          { id: 'w_pr_32', section: 'Устройство потолка', name: 'Монтаж короба для вытяжки', unit: 'шт.', volumeMode: 'rooms_plus_wet', basePrice: 2700 },
+        ],
+      };
+
+      const DEFAULT_WORK_ITEMS = deepClone(TARIFF_WORK_PLANS.comfort);
+
+      let db = null;
+      let currentUser = null;
+      const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+      function setSyncStatus(text, isReady) {
+        const el = document.getElementById('cloudSyncStatus');
+        if (!el) return;
+        el.innerHTML = `<span class="w-2 h-2 rounded-full ${isReady ? 'bg-emeraldbrand' : 'bg-amber-400'}"></span><span>${text}</span>`;
+      }
+
+      async function saveCatalogSettingsToCloud() {
+        if (!db || !currentUser) return;
+        try {
+          setSyncStatus('Сохранение...', false);
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'remont_calc_settings', 'shared_catalog');
+          await setDoc(docRef, {
+            customImages: state.customImages || {},
+            tariffs: state.tariffs || {},
+            materialCatalog: state.materialCatalog || {},
+            customMaterials: state.customMaterials || [],
+            updatedAt: Date.now(),
+          }, { merge: true });
+          setSyncStatus('Фото и цены сохранены', true);
+        } catch (err) {
+          console.error('Ошибка сохранения в облако:', err);
+          setSyncStatus('Ошибка сохранения', false);
+        }
+      }
+
+      async function initCloudSync() {
+        try {
+          if (typeof __firebase_config === 'undefined') {
+            setSyncStatus('Локальный режим', false);
+            return;
+          }
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          const auth = getAuth(app);
+          db = getFirestore(app);
+
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          currentUser = auth.currentUser;
+          if (!currentUser) return;
+
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'remont_calc_settings', 'shared_catalog');
+          onSnapshot(
+            docRef,
+            (snap) => {
+              if (snap.exists()) {
+                const data = snap.data();
+                if (data.customImages && typeof data.customImages === 'object') {
+                  state.customImages = { ...EMBEDDED_CUSTOM_IMAGES, ...data.customImages };
+                }
+                if (data.tariffs && typeof data.tariffs === 'object') {
+                  state.tariffs = { ...deepClone(DEFAULT_TARIFFS), ...data.tariffs };
+                }
+                if (data.materialCatalog && typeof data.materialCatalog === 'object') {
+                  state.materialCatalog = { ...deepClone(DEFAULT_MATERIAL_CATALOG), ...data.materialCatalog };
+                }
+                if (Array.isArray(data.customMaterials)) {
+                  state.customMaterials = data.customMaterials;
+                }
+                renderCurrentView();
+              }
+              setSyncStatus('Синхронизировано', true);
+            },
+            (err) => {
+              console.error('Ошибка подписки на облачные настройки:', err);
+              setSyncStatus('Нет связи с облаком', false);
+            }
+          );
+        } catch (err) {
+          console.error('Ошибка инициализации облака:', err);
+          setSyncStatus('Офлайн-режим', false);
+        }
+      }
+
+      function getCategoriesForTariff(tariffId) {
+        const list = [
+          'Напольное покрытие',
+          'Ламинат',
+          'Керамогранит (пол)',
+          'Керамогранит (стены)',
+        ];
+        if (tariffId === 'comfort' || tariffId === 'comfort_plus' || tariffId === 'premium') {
+          list.push('Керамогранит (акцентная стена)');
+        }
+        if (tariffId === 'premium') {
+          list.push('Керамогранит (прихожая)');
+        }
+        list.push(
+          'Ванна',
+          'Унитаз с инсталляцией',
+          'Обои флизелиновые',
+          'Краска для стен (Dulux Bindo 7 RAL)',
+          'Потолки',
+          'Двери',
+          'Сантехника и черновые'
+        );
+        return list;
+      }
+
+      const WALLPAPER_FLIZELIN_ITEMS = [
+        {
+          id: 'wp_82714910',
+          sku: '82714910',
+          name: 'Обои флизелиновые под покраску Marburg Patent Decor 1.06×25 м',
+          specs: 'Флизелин • 1.06×25 м (26.5 м²) • белые',
+          packInfo: '26.5 м²/рул.',
+          unit: 'м²',
+          price: 145,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-white',
+          badgeText: 'Под покраску • 25 м',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_85194322',
+          sku: '85194322',
+          name: 'Обои флизелиновые Victoria Stenova Loft бежевые 1.06×10 м',
+          specs: 'Винил гор. тиснения на флизелине • 1.06×10.05 м',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 269,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-beige',
+          badgeText: 'Stenova • Беж',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_86420115',
+          sku: '86420115',
+          name: 'Обои флизелиновые Erismann Beton светло-серые 1.06×10 м',
+          specs: 'Флизелиновая основа • фактура штукатурки',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 245,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-grey',
+          badgeText: 'Erismann • Серый',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_89034128',
+          sku: '89034128',
+          name: 'Обои флизелиновые Палитра Linen тёплый лён 1.06×10 м',
+          specs: 'Горячее тиснение • текстильная фактура',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 229,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-beige',
+          badgeText: 'Палитра • Лён',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_90128451',
+          sku: '90128451',
+          name: 'Обои флизелиновые Loymina Shtukaturka матовые 1.00×10 м',
+          specs: 'Чистый флизелин • антивандальное покрытие',
+          packInfo: '10.05 м²/рул.',
+          unit: 'м²',
+          price: 490,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-white',
+          badgeText: 'Loymina • Премиум',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_87451209',
+          sku: '87451209',
+          name: 'Обои флизелиновые Ateliero Aura тауп 1.06×10 м',
+          specs: 'Флизелиновая основа • моющиеся',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 285,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-taupe',
+          badgeText: 'Ateliero • Тауп',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_88219044',
+          sku: '88219044',
+          name: 'Обои флизелиновые Евро Декор Nordic шалфей 1.06×10 м',
+          specs: 'Флизелин • спокойный скандинавский оттенок',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 255,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-sage',
+          badgeText: 'Nordic • Шалфей',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_83901277',
+          sku: '83901277',
+          name: 'Обои флизелиновые ремонтные малярный флизелин 150 г/м²',
+          specs: 'Гладкий ремонтный флизелин • 1.06×25 м',
+          packInfo: '26.5 м²/рул.',
+          unit: 'м²',
+          price: 118,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-white',
+          badgeText: '150 г/м² • Гладкие',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_91405561',
+          sku: '91405561',
+          name: 'Обои флизелиновые Zambaiti Parati Murella кремовые 1.06×10 м',
+          specs: 'Италия • плотный винил на флизелине',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 540,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-beige',
+          badgeText: 'Zambaiti • Италия',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+        {
+          id: 'wp_86773018',
+          sku: '86773018',
+          name: 'Обои флизелиновые Артекс Velvet графитово-серые 1.06×10 м',
+          specs: 'Флизелиновая основа • матовый рельеф',
+          packInfo: '10.65 м²/рул.',
+          unit: 'м²',
+          price: 238,
+          qtyMode: 'walls',
+          swatchClass: 'swatch-wp-grey',
+          badgeText: 'Артекс • Графит',
+          url: 'https://tyumen.lemanapro.ru/catalogue/oboi-dlya-sten-i-potolka/',
+        },
+      ];
+
+      const RAL_WALL_COLORS = [
+        { code: 'RAL 9010', name: 'Чисто-белый (Pure White)', hex: '#f7f7f2' },
+        { code: 'RAL 9016', name: 'Транспортный белый (Traffic White)', hex: '#f1f3f1' },
+        { code: 'RAL 9001', name: 'Кремово-белый (Cream)', hex: '#efe8d8' },
+        { code: 'RAL 1013', name: 'Жемчужно-белый (Oyster White)', hex: '#e5dec9' },
+        { code: 'RAL 1015', name: 'Светлая слоновая кость (Light Ivory)', hex: '#e6d6b8' },
+        { code: 'RAL 7035', name: 'Светло-серый (Light Grey)', hex: '#cbd0cc' },
+        { code: 'RAL 7047', name: 'Телегрей 4 (Telegrey 4)', hex: '#c8caca' },
+        { code: 'RAL 7044', name: 'Шёлково-серый (Silk Grey)', hex: '#b7b3a8' },
+        { code: 'RAL 7032', name: 'Галечно-серый (Pebble Grey)', hex: '#b5b0a1' },
+        { code: 'RAL 7030', name: 'Каменно-серый (Stone Grey)', hex: '#939388' },
+        { code: 'RAL 7016', name: 'Антрацитово-серый (Anthracite Grey)', hex: '#383e42' },
+        { code: 'RAL 6021', name: 'Бледно-зелёный / Шалфей (Pale Green)', hex: '#86a48a' },
+        { code: 'RAL 5024', name: 'Пастельно-синий (Pastel Blue)', hex: '#60839f' },
+        { code: 'RAL 3012', name: 'Бежево-красный / Терракота (Beige Red)', hex: '#c48374' },
+      ];
+
+      const DULUX_BINDO7_BASE_ITEM = {
+        id: 'paint_dulux_bindo7',
+        sku: 'DULUX-BINDO7',
+        name: 'Краска интерьерная матовая Dulux Bindo 7 (колеровка по RAL)',
+        specs: 'Стойкая к мытью • расход ~0.18 л/м² в 2 слоя',
+        packInfo: 'колеровка по RAL',
+        unit: 'м²',
+        price: 260,
+        qtyMode: 'walls',
+        swatchClass: 'swatch-paint-soft',
+        badgeText: 'Dulux Bindo 7 • RAL',
+        url: 'https://tyumen.lemanapro.ru/catalogue/kraski-dlya-vnutrennih-rabot/',
+      };
+
+      const QUARTZ_VINYL_ITEMS = [
+        {
+          id: 'qv_88010969',
+          sku: '88010969',
+          name: 'SPC плитка Grigio Vulcano',
+          specs: '4 мм • защ. слой 0.3 мм',
+          packInfo: '3.069 м²/уп.',
+          unit: 'м²',
+          price: 2038,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-stone-grey',
+          badgeText: 'SPC • 4 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/pvh-plitka/',
+        },
+        {
+          id: 'qv_84957562',
+          sku: '84957562',
+          name: 'ПВХ плитка Tarkett Beat Kirk',
+          specs: '2.7 мм • защ. слой 0.55 мм',
+          packInfo: '2.5 м²/уп.',
+          unit: 'м²',
+          price: 997,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: 'ПВХ • 0.55 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/otdelochnye-pokrytiya-dlya-pola/',
+        },
+        {
+          id: 'qv_84957566',
+          sku: '84957566',
+          name: 'ПВХ плитка Tarkett Beat Wim',
+          specs: '2.7 мм • защ. слой 0.55 мм',
+          packInfo: '2.09 м²/уп.',
+          unit: 'м²',
+          price: 1734,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'ПВХ • 0.55 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/otdelochnye-pokrytiya-dlya-pola/',
+        },
+        {
+          id: 'qv_82338362',
+          sku: '82338362',
+          name: 'Кварц-винил SPC «Robusta»',
+          specs: '33 класс • 4.2 мм',
+          packInfo: '2.124 м²/уп.',
+          unit: 'м²',
+          price: 2190,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'SPC • 33 кл.',
+          url: 'https://tyumen.lemanapro.ru/product/kvarc-vinil-spc-robusta-33-klass-tolshchina-42-mm-2124-m-82338362/',
+        },
+        {
+          id: 'qv_91050096',
+          sku: '91050096',
+          name: 'SPC плитка Ado Floor Amato',
+          specs: '43 класс • 5 мм • 4 890 ₽/уп.',
+          packInfo: '2.167 м²/уп.',
+          unit: 'м²',
+          price: 2257,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: 'SPC • 43 кл.',
+          url: 'https://tyumen.lemanapro.ru/product/spc-plitka-ado-floor-amato-43-klass-tolshchina-5-mm-2167-m-91050096/',
+        },
+        {
+          id: 'qv_91738702',
+          sku: '91738702',
+          name: 'SPC плитка Aspenfloor Смарт Чойс Дуб Винтаж',
+          specs: '43 класс • 3.5 мм • 7 894 ₽/уп.',
+          packInfo: '2.24 м²/уп.',
+          unit: 'м²',
+          price: 3524,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-dark',
+          badgeText: 'SPC • Дуб Винтаж',
+          url: 'https://tyumen.lemanapro.ru/product/spc-plitka-aspenfloor-smart-choys-dub-vintazh-43-klass-tolshchina-350-mm-224-m-91738702/',
+        },
+        {
+          id: 'qv_91524891',
+          sku: '91524891',
+          name: 'SPC плитка ViFloor Ideal Дуб Магнат',
+          specs: '5.5 мм • 0.5 мм • фаска • 3 153,60 ₽/уп.',
+          packInfo: '2.245 м²/уп.',
+          unit: 'м²',
+          price: 1405,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'SPC • 5.5 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/pvh-plitka/',
+        },
+        {
+          id: 'qv_91524874',
+          sku: '91524874',
+          name: 'SPC плитка ViFloor Base Дуб Севилла',
+          specs: '3.5 мм • 0.5 мм • фаска • 3 989,70 ₽/уп.',
+          packInfo: '1.842 м²/уп.',
+          unit: 'м²',
+          price: 2166,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: 'SPC • Дуб Севилла',
+          url: 'https://tyumen.lemanapro.ru/catalogue/pvh-plitka/',
+        },
+        {
+          id: 'qv_89458192',
+          sku: '89458192',
+          name: 'MSPC Ламинат Дуб Тинто',
+          specs: '33 класс • 8 мм • фаска • 72 ч',
+          packInfo: '1.665 м²/уп.',
+          unit: 'м²',
+          price: 4246,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-dark',
+          badgeText: 'MSPC • 72 ч',
+          url: 'https://tyumen.lemanapro.ru/catalogue/otdelochnye-pokrytiya-dlya-pola/',
+        },
+        {
+          id: 'qv_catalog_set',
+          sku: 'ТЮМЕНЬ-SPC',
+          name: 'Кварцвинил из каталога Лемана ПРО Тюмень',
+          specs: 'Подборка замковых и клеевых коллекций',
+          packInfo: 'подбор по уп.',
+          unit: 'м²',
+          price: 1850,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'Каталог Тюмень',
+          url: 'https://tyumen.lemanapro.ru/catalogue/pvh-plitka/',
+        },
+      ];
+
+      const PORCELAIN_600X1200_ITEMS = [
+        {
+          id: 'kg_91725974',
+          sku: '91725974',
+          name: 'Керамогранит LCM Iron steel 60120IRN55HG',
+          specs: '60×120 см • ректификат • разноцветный',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2490,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-dark',
+          badgeText: '600×1200 • Тюмень',
+          url: 'https://tyumen.lemanapro.ru/product/keramogranit-lcm-iron-steel-60120irn55hg-60x120sm-cvet-raznocvetnyy-91725974/',
+        },
+        {
+          id: 'kg_91725975',
+          sku: '91725975',
+          name: 'Керамогранит LCM Sapphire agate 60120SPA13HG',
+          specs: '60×120 см • ректификат • синий',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2690,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-blue',
+          badgeText: '600×1200 • Тюмень',
+          url: 'https://tyumen.lemanapro.ru/product/keramogranit-lcm-sapphire-agate-60120spa13hg-60x120sm-cvet-siniy-91725975/',
+        },
+        {
+          id: 'kg_93050082',
+          sku: '93050082',
+          name: 'Керамогранит Alma Ceramica Бонд GFU60120BND07R',
+          specs: '60×120 см • 8.5 мм • матовый • светло-серый',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2350,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-grey',
+          badgeText: '600×1200 • Тюмень',
+          url: 'https://tyumen.lemanapro.ru/product/keramogranit-alma-ceramica-bond-bond-gfu60120bnd07r-60x120-sm-cvet-sv-seryy-93050082/',
+        },
+        {
+          id: 'kg_91381254',
+          sku: '91381254',
+          name: 'Керамогранит LCM Persia Beige',
+          specs: 'Серия 600×1200 / 600×600 • бежевый',
+          packInfo: '600×1200',
+          unit: 'м²',
+          price: 2190,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-beige',
+          badgeText: '600×1200 • Тюмень',
+          url: 'https://tyumen.lemanapro.ru/product/keramogranit-lcm-persia-beige-6060prs11p-60x60sm-polirovannyy-bezhevyy-91381254/',
+        },
+        {
+          id: 'kg_ext_1',
+          sku: '60120-BETON-L',
+          name: 'Керамогранит 600×1200 Бетон светлый матовый',
+          specs: 'Формат 60×120 см • ректификат',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2150,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-grey',
+          badgeText: '60×120 • Бетон',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+        {
+          id: 'kg_ext_2',
+          sku: '60120-TRAV-W',
+          name: 'Керамогранит 600×1200 Тёплый травертин',
+          specs: 'Формат 60×120 см • фактура камня',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2590,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-beige',
+          badgeText: '60×120 • Травертин',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+        {
+          id: 'kg_ext_3',
+          sku: '60120-CAL-W',
+          name: 'Керамогранит 600×1200 Белый мрамор Калакатта',
+          specs: 'Формат 60×120 см • мраморный рисунок',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2890,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-marble-white',
+          badgeText: '60×120 • Мрамор',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+        {
+          id: 'kg_ext_4',
+          sku: '60120-SLATE-G',
+          name: 'Керамогранит 600×1200 Графитовый сланец',
+          specs: 'Формат 60×120 см • матовый рельеф',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2450,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-dark',
+          badgeText: '60×120 • Сланец',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+        {
+          id: 'kg_ext_5',
+          sku: '60120-SAND-M',
+          name: 'Керамогранит 600×1200 Тёплый песочный матовый',
+          specs: 'Формат 60×120 см • спокойный тон',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2240,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-beige',
+          badgeText: '60×120 • Песок',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+        {
+          id: 'kg_ext_6',
+          sku: '60120-BASALT-D',
+          name: 'Керамогранит 600×1200 Тёмный базальт',
+          specs: 'Формат 60×120 см • акцентный тёмный',
+          packInfo: '60×120 см',
+          unit: 'м²',
+          price: 2790,
+          qtyMode: 'wet_tiles',
+          swatchClass: 'swatch-stone-dark',
+          badgeText: '60×120 • Базальт',
+          url: 'https://tyumen.lemanapro.ru/catalogue/keramogranit/',
+        },
+      ];
+
+      const LAMINATE_ITEMS = [
+        {
+          id: 'lm_84868456',
+          sku: '84868456',
+          name: 'Ламинат Quick-step Bubble Дуб Валаам',
+          specs: '33 класс • 8 мм • фаска • 24 ч',
+          packInfo: '1.596 м²/уп.',
+          unit: 'м²',
+          price: 1330,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: '33 кл. • 8 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_82405577',
+          sku: '82405577',
+          name: 'Ламинат Quick-step Aqua Дуб Эри',
+          specs: '33 класс • 8 мм • фаска • 72 ч',
+          packInfo: '1.596 м²/уп.',
+          unit: 'м²',
+          price: 1528,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'Aqua • 72 ч',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_89336354',
+          sku: '89336354',
+          name: 'Ламинат Tarkett Хартли',
+          specs: '33 класс • 14 мм • фаска • 24 ч',
+          packInfo: '1.253 м²/уп.',
+          unit: 'м²',
+          price: 1900,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: '33 кл. • 14 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_84868454',
+          sku: '84868454',
+          name: 'Ламинат Quick-step Bubble Дуб Териберка',
+          specs: '33 класс • 8 мм • фаска • 1.596 м²/уп.',
+          packInfo: '1.596 м²/уп.',
+          unit: 'м²',
+          price: 1330,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: '33 кл. • 8 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_92932625',
+          sku: '92932625',
+          name: 'Ламинат Шато Дуб бордоский тёмный',
+          specs: '34 класс • 10 мм • фаска • 72 ч • 2 045,76 ₽/уп.',
+          packInfo: '1.8 м²/уп.',
+          unit: 'м²',
+          price: 1137,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-dark',
+          badgeText: '34 кл. • 72 ч',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_84868455',
+          sku: '84868455',
+          name: 'Ламинат Quick-step Aqua Дуб Гарда',
+          specs: '33 класс • 8 мм • фаска • 72 ч',
+          packInfo: '1.596 м²/уп.',
+          unit: 'м²',
+          price: 1850,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: 'Aqua • 72 ч',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_91544400',
+          sku: '91544400',
+          name: 'Ламинат Lamiwood Chester Дуб Лондон',
+          specs: '34 класс • 12 мм • фаска • 2 289,71 ₽/уп.',
+          packInfo: '1.47 м²/уп.',
+          unit: 'м²',
+          price: 1558,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-dark',
+          badgeText: '34 кл. • 12 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_89439107',
+          sku: '89439107',
+          name: 'Ламинат Kronostep Дуб Эндгрейн',
+          specs: '33 класс • 10 мм • фаска',
+          packInfo: '1.73 м²/уп.',
+          unit: 'м²',
+          price: 1217,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: '33 кл. • 10 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_89418627',
+          sku: '89418627',
+          name: 'Ламинат Classen Forza Дуб Камедо',
+          specs: '33 класс • 10 мм • фаска • 48 ч',
+          packInfo: '1.973 м²/уп.',
+          unit: 'м²',
+          price: 3124,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-warm',
+          badgeText: '33 кл. • 48 ч',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+        {
+          id: 'lm_89433615',
+          sku: '89433615',
+          name: 'Ламинат KREAFORTA Дуб Неглинка',
+          specs: '33 класс • 10 мм • фаска',
+          packInfo: '1.74 м²/уп.',
+          unit: 'м²',
+          price: 1080,
+          qtyMode: 'floor_dry',
+          swatchClass: 'swatch-wood-light',
+          badgeText: '33 кл. • 10 мм',
+          url: 'https://tyumen.lemanapro.ru/catalogue/laminat/',
+        },
+      ];
+
+      const BATH_ITEMS = [
+        {
+          id: 'bn_89429720',
+          sku: '89429720',
+          name: 'Ванна Универсал Манитоба чугунная 170×70 см белая',
+          specs: 'Чугун • 170×70 см • классика',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 19990,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Чугун • 170×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_83240825',
+          sku: '83240825',
+          name: 'Ванна 100Acryl Ницца акриловая 170×70 см с каркасом',
+          specs: 'Акрил • 170×70 см • каркас в комплекте',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 12500,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Акрил • 170×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_87088851',
+          sku: '87088851',
+          name: 'Ванна AM.PM Force W9FA-170-070W-A акриловая 170×70 см',
+          specs: 'Акрил • 170×70 см • прямоугольная',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 21500,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'AM.PM • 170×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_89479319',
+          sku: '89479319',
+          name: 'Комплект ванны с каркасом Jacob Delafon Дуо 170×70 см с сифоном',
+          specs: '170×70 см • каркас + сифон',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 25990,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Delafon • 170×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_89400165',
+          sku: '89400165',
+          name: 'Ванна AM.PM Moxie акриловая 150×70 см каркас и сифон',
+          specs: 'Акрил • 150×70 см • каркас + сифон',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 23500,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'AM.PM • 150×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_89477881',
+          sku: '89477881',
+          name: 'Комплект ванны с каркасом Aquatek Терра 160×70 см с сифоном',
+          specs: '160×70 см • каркас + сифон',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 30990,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Aquatek • 160×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_92399702',
+          sku: '92399702',
+          name: 'Ванна акриловая Enio Verso 180×70 см с каркасом белая',
+          specs: 'Акрил • 180×70 см • с каркасом',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 34239,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Enio • 180×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_92862950',
+          sku: '92862950',
+          name: 'Ванна Alex Baitler ZB057K 170×70 акриловая с каркасом',
+          specs: 'Акрил • 170×70 см • с каркасом',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 39990,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-acrylic',
+          badgeText: 'Baitler • 170×70',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_98353057',
+          sku: '98353057',
+          name: 'Ванна Teymi Valma акрил 170×75 см отдельностоящая белая',
+          specs: 'Отдельностоящая • 170×75 см • белая',
+          packInfo: '1 шт.',
+          unit: 'шт.',
+          price: 56610,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-freestanding',
+          badgeText: 'Отдельностоящая',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+        {
+          id: 'bn_98449134',
+          sku: '98449134',
+          name: 'Ванна Bauedge Xd0003-ko0001 отдельностоящая 150×75 см со смесителем',
+          specs: 'Отдельностоящая • 150×75 см • со смесителем',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 82999,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-bath-freestanding',
+          badgeText: 'Bauedge • Премиум',
+          url: 'https://tyumen.lemanapro.ru/catalogue/vanny/',
+        },
+      ];
+
+      const TOILET_INST_ITEMS = [
+        {
+          id: 'ti_86370056',
+          sku: '86370056',
+          name: 'Комплект инсталляция с унитазом Cersanit City Vector + кнопка Blick',
+          specs: 'Безободковый • микролифт • белый',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 19700,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Cersanit • Белый',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_89375476',
+          sku: '89375476',
+          name: 'Комплект инсталляция с унитазом Cersanit Carina 68173, клавиша чёрный мат',
+          specs: 'Безободковый • микролифт • клавиша XL',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 19900,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Cersanit • Чёрн. мат',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_98394085',
+          sku: '98394085',
+          name: 'Комплект инсталляция с унитазом Runohome Муссон Торнадо + кнопка хром',
+          specs: 'Подвесной • безободковый • Торнадо',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 21490,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Runohome • Торнадо',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_91681088',
+          sku: '91681088',
+          name: 'Комплект инсталляция с унитазом Cersanit Brasko smart + link pro белый',
+          specs: 'Подвесной • микролифт • белый',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 26220,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Cersanit • Brasko',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_89371196',
+          sku: '89371196',
+          name: 'Комплект инсталляция с унитазом Aquatek Лира безободковый микролифт',
+          specs: 'Безободковый • микролифт • клавиша белая',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 26900,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Aquatek • Лира',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_92507443',
+          sku: '92507443',
+          name: 'Комплект инсталляция с унитазом Iberica blanca IB.001M.BLA белый',
+          specs: 'Подвесной • комплект • цвет белый',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 28200,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Iberica • Blanca',
+          url: 'https://tyumen.lemanapro.ru/product/komplekt-installyaciya-s-unitazom-iberica-blanca-ib001mbla2341131-cvet-belyy-92507443/',
+        },
+        {
+          id: 'ti_89264216',
+          sku: '89264216',
+          name: 'Комплект инсталляция Oli Tornado с унитазом 4в1 клавиша Slim хром',
+          specs: '4в1 • безободковый • микролифт • хром',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 28305,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Oli Tornado • 4в1',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_93006675',
+          sku: '93006675',
+          name: 'Комплект инсталляция Tece base 2.0 с унитазом Laura и панелью TECEnow',
+          specs: 'TECE base 2.0 • подвесной Laura • белый',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 28990,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'TECE • Base 2.0',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_89391258',
+          sku: '89391258',
+          name: 'Комплект инсталляция с унитазом AM.PM Flash 2.0 Tornado клавиша L хром',
+          specs: 'Безободковый • микролифт • хром',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 35500,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'AM.PM • Flash 2.0',
+          url: 'https://tyumen.lemanapro.ru/catalogue/komplekt-installyacii-i-unitaza/',
+        },
+        {
+          id: 'ti_92258262',
+          sku: '92258262',
+          name: 'Комплект инсталляция с унитазом Doccia Val24CH цвет белый',
+          specs: 'Подвесной • комплект • цвет белый',
+          packInfo: 'комплект',
+          unit: 'шт.',
+          price: 37700,
+          qtyMode: 'bathrooms',
+          swatchClass: 'swatch-toilet-inst',
+          badgeText: 'Doccia • Val24CH',
+          url: 'https://tyumen.lemanapro.ru/product/komplekt-installyaciya-s-unitazom-doccia-val24ch-cvet-belyy-92258262/',
+        },
+      ];
+
+      function buildTariffMaterials(
+        tariffId,
+        defaultFloorId,
+        defaultKgFloorId,
+        defaultKgWallId,
+        defaultKgAccentId,
+        defaultKgHallId,
+        defaultLamId,
+        defaultBathId,
+        defaultToiletId,
+        defaultWallpaperId,
+        paintPricePerSqm,
+        ceilPrice,
+        doorPrice,
+        plumbPrice
+      ) {
+        const paintItem = deepClone(DULUX_BINDO7_BASE_ITEM);
+        paintItem.price = paintPricePerSqm;
+
+        const map = {
+          'Напольное покрытие': deepClone(QUARTZ_VINYL_ITEMS),
+          'Ламинат': deepClone(LAMINATE_ITEMS),
+          'Керамогранит (пол)': deepClone(PORCELAIN_600X1200_ITEMS),
+          'Керамогранит (стены)': deepClone(PORCELAIN_600X1200_ITEMS),
+          'Ванна': deepClone(BATH_ITEMS),
+          'Унитаз с инсталляцией': deepClone(TOILET_INST_ITEMS),
+          'Обои флизелиновые': deepClone(WALLPAPER_FLIZELIN_ITEMS),
+          'Краска для стен (Dulux Bindo 7 RAL)': [paintItem],
+          'Потолки': [
+            {
+              id: `cl_${tariffId}_1`,
+              sku: 'CEIL-BASE',
+              name: 'Натяжной потолок / отделка потолка под ключ',
+              specs: 'Полотно, профиль, монтаж',
+              packInfo: 'м² по площади',
+              unit: 'м²',
+              price: ceilPrice,
+              qtyMode: 'total_area',
+              swatchClass: 'swatch-paint-soft',
+              badgeText: 'Потолок',
+            },
+          ],
+          'Двери': [
+            {
+              id: `dr_${tariffId}_1`,
+              sku: 'DOOR-SET',
+              name: 'Межкомнатная дверь в сборе с коробкой и фурнитурой',
+              specs: 'Полотно, коробка, наличники',
+              packInfo: 'комплект',
+              unit: 'шт.',
+              price: doorPrice,
+              qtyMode: 'doors',
+              swatchClass: 'swatch-door-panel',
+              badgeText: 'Дверь',
+            },
+          ],
+          'Сантехника и черновые': [
+            {
+              id: `pl_${tariffId}_1`,
+              sku: 'SAN-BASE',
+              name: 'Базовый комплект сантехники и черновых расходников',
+              specs: 'Смесители, грунт, шпатлёвка, гидроизоляция',
+              packInfo: 'на санузел',
+              unit: 'компл.',
+              price: plumbPrice,
+              qtyMode: 'bathrooms',
+              swatchClass: 'swatch-plumbing',
+              badgeText: 'Сантехника',
+            },
+          ],
+          _defaults: {
+            'Напольное покрытие': defaultFloorId,
+            'Ламинат': defaultLamId,
+            'Керамогранит (пол)': defaultKgFloorId,
+            'Керамогранит (стены)': defaultKgWallId,
+            'Ванна': defaultBathId,
+            'Унитаз с инсталляцией': defaultToiletId,
+            'Обои флизелиновые': defaultWallpaperId,
+            'Краска для стен (Dulux Bindo 7 RAL)': paintItem.id,
+            'Потолки': `cl_${tariffId}_1`,
+            'Двери': `dr_${tariffId}_1`,
+            'Сантехника и черновые': `pl_${tariffId}_1`,
+          },
+        };
+
+        if (tariffId === 'comfort' || tariffId === 'comfort_plus' || tariffId === 'premium') {
+          map['Керамогранит (акцентная стена)'] = deepClone(PORCELAIN_600X1200_ITEMS);
+          map._defaults['Керамогранит (акцентная стена)'] = defaultKgAccentId;
+        }
+        if (tariffId === 'premium') {
+          map['Керамогранит (прихожая)'] = deepClone(PORCELAIN_600X1200_ITEMS);
+          map._defaults['Керамогранит (прихожая)'] = defaultKgHallId;
+        }
+
+        return map;
+      }
+
+      const DEFAULT_MATERIAL_CATALOG = {
+        standard: buildTariffMaterials(
+          'standard',
+          'qv_84957562',
+          'kg_ext_1',
+          'kg_91381254',
+          'kg_91725974',
+          'kg_ext_4',
+          'lm_89433615',
+          'bn_83240825',
+          'ti_86370056',
+          'wp_83901277',
+          240,
+          750,
+          8500,
+          14000
+        ),
+        comfort: buildTariffMaterials(
+          'comfort',
+          'qv_82338362',
+          'kg_93050082',
+          'kg_91381254',
+          'kg_91725975',
+          'kg_ext_4',
+          'lm_84868456',
+          'bn_87088851',
+          'ti_98394085',
+          'wp_85194322',
+          260,
+          1050,
+          13500,
+          22000
+        ),
+        comfort_plus: buildTariffMaterials(
+          'comfort_plus',
+          'qv_91050096',
+          'kg_ext_2',
+          'kg_93050082',
+          'kg_91725974',
+          'kg_ext_4',
+          'lm_82405577',
+          'bn_89479319',
+          'ti_93006675',
+          'wp_86420115',
+          290,
+          1350,
+          18500,
+          31000
+        ),
+        premium: buildTariffMaterials(
+          'premium',
+          'qv_91738702',
+          'kg_ext_3',
+          'kg_ext_2',
+          'kg_91725975',
+          'kg_ext_4',
+          'lm_89418627',
+          'bn_98353057',
+          'ti_89391258',
+          'wp_90128451',
+          340,
+          1900,
+          27000,
+          46000
+        ),
+      };
+
+      const EMBEDDED_CUSTOM_IMAGES = {};
+
+      function getMaterialImageKey(item) {
+        if (!item) return '';
+        return item.sku ? `sku:${item.sku}` : item.id;
+      }
+
+      function getSavedMaterialImage(item) {
+        if (!item) return '';
+        const key = getMaterialImageKey(item);
+        return state.customImages[key] || state.customImages[item.id] || '';
+      }
+
+      function setSavedMaterialImage(item, url) {
+        if (!item) return;
+        const key = getMaterialImageKey(item);
+        if (url) {
+          state.customImages[key] = url;
+          state.customImages[item.id] = url;
+        } else {
+          delete state.customImages[key];
+          delete state.customImages[item.id];
+        }
+      }
+
+      function getAllUniqueCatalogMaterials() {
+        const seen = new Set();
+        const result = [];
+        Object.values(state.materialCatalog).forEach((tariffMap) => {
+          Object.entries(tariffMap).forEach(([cat, items]) => {
+            if (cat === '_defaults' || !Array.isArray(items)) return;
+            items.forEach((item) => {
+              const key = getMaterialImageKey(item);
+              if (key && !seen.has(key)) {
+                seen.add(key);
+                result.push({ category: cat, item });
+              }
+            });
+          });
+        });
+        state.customMaterials.forEach((item) => {
+          const key = getMaterialImageKey(item);
+          if (key && !seen.has(key)) {
+            seen.add(key);
+            result.push({ category: item.category || 'Свои материалы', item });
+          }
+        });
+        return result;
+      }
+
+      const state = {
+        step: 1,
+        params: {
+          totalArea: 65,
+          livingArea: 38,
+          roomsCount: 2,
+          bathroomsCount: 2,
+          ceilingHeight: 2.75,
+          doorsCount: 5,
+        },
+        tariffId: 'comfort',
+        tariffs: deepClone(DEFAULT_TARIFFS),
+        workCatalog: deepClone(DEFAULT_WORK_ITEMS),
+        materialCatalog: deepClone(DEFAULT_MATERIAL_CATALOG),
+        customImages: deepClone(EMBEDDED_CUSTOM_IMAGES),
+        workOverrides: {},
+        selectedMaterials: {},
+        selectedRalCode: 'RAL 9010',
+        customRalNote: '',
+        enabledCategories: {
+          'Напольное покрытие': true,
+          'Ламинат': false,
+          'Керамогранит (пол)': true,
+          'Керамогранит (стены)': true,
+          'Керамогранит (акцентная стена)': true,
+          'Керамогранит (прихожая)': true,
+          'Ванна': true,
+          'Унитаз с инсталляцией': true,
+          'Обои флизелиновые': true,
+          'Краска для стен (Dulux Bindo 7 RAL)': false,
+          'Потолки': true,
+          'Двери': true,
+          'Сантехника и черновые': true,
+        },
+        customMaterials: [],
+        editorActiveTab: 'images',
+        previewContext: null,
+      };
+
+      function syncParamInputsFromState() {
+        const map = {
+          inputTotalArea: state.params.totalArea,
+          inputLivingArea: state.params.livingArea,
+          inputRoomsCount: state.params.roomsCount,
+          inputBathroomsCount: state.params.bathroomsCount,
+          inputCeilingHeight: state.params.ceilingHeight,
+          inputDoorsCount: state.params.doorsCount,
+        };
+        Object.entries(map).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el) el.value = String(val);
+        });
+      }
+
+      function applyWorkCatalogForTariff(tariffId, keepOverrides = false) {
+        const plan = TARIFF_WORK_PLANS[tariffId] || TARIFF_WORK_PLANS.comfort;
+        state.workCatalog = deepClone(plan);
+        if (!keepOverrides) {
+          state.workOverrides = {};
+        }
+      }
+
+      function round1(val) {
+        const n = Number(val);
+        if (!Number.isFinite(n)) return 0;
+        return Math.round(n * 10) / 10;
+      }
+
+      function formatRub(val) {
+        const n = Math.round(Number(val) || 0);
+        return `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₽`;
+      }
+
+      function formatNum(val) {
+        const n = Number(val);
+        if (!Number.isFinite(n)) return '0';
+        const rounded = Math.round(n * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1).replace('.', ',');
+      }
+
+      function calcWallsArea(p) {
+        const total = Math.max(10, Number(p.totalArea) || 65);
+        const height = Math.max(2.0, Number(p.ceilingHeight) || 2.75);
+        const roomsFactor = Math.max(1, Number(p.roomsCount) || 1) + Math.max(1, Number(p.bathroomsCount) || 1);
+        const estimatedPerimeter = Math.sqrt(total) * 3.4 + roomsFactor * 1.6;
+        const grossWalls = estimatedPerimeter * height;
+        return round1(Math.max(12, grossWalls * 0.88));
+      }
+
+      function calcWetTilesArea(p) {
+        const baths = Math.max(1, Math.round(Number(p.bathroomsCount) || 1));
+        const height = Math.max(2.0, Number(p.ceilingHeight) || 2.75);
+        const floorPerBath = 4.2;
+        const wallsPerBath = Math.max(11, round1(8.2 * (height / 2.75)));
+        return round1(baths * (floorPerBath + wallsPerBath));
+      }
+
+      function calcWorkVolumeByMode(mode, p) {
+        const total = Math.max(1, Number(p.totalArea) || 65);
+        const living = Math.max(0, Number(p.livingArea) || 0);
+        const rooms = Math.max(0, Math.round(Number(p.roomsCount) || 0));
+        const baths = Math.max(1, Math.round(Number(p.bathroomsCount) || 1));
+        const doors = Math.max(0, Math.round(Number(p.doorsCount) || 0));
+
+        switch (mode) {
+          case 'total_area':
+            return round1(total);
+          case 'living_area':
+            return round1(living > 0 ? living : total * 0.6);
+          case 'walls':
+            return calcWallsArea(p);
+          case 'floor_dry': {
+            const dryFloor = living > 0 ? Math.max(living, total - baths * 4.5) : Math.max(5, total - baths * 4.5);
+            return round1(dryFloor);
+          }
+          case 'wet_tiles':
+            return calcWetTilesArea(p);
+          case 'rooms_plus_wet':
+            return Math.max(1, rooms + baths);
+          case 'bathrooms':
+            return baths;
+          case 'doors':
+            return doors;
+          default:
+            return round1(total);
+        }
+      }
+
+      function calcMaterialQtyByMode(mode, p) {
+        const total = Math.max(1, Number(p.totalArea) || 65);
+        const living = Math.max(0, Number(p.livingArea) || 0);
+        const baths = Math.max(1, Math.round(Number(p.bathroomsCount) || 1));
+        const doors = Math.max(0, Math.round(Number(p.doorsCount) || 0));
+
+        switch (mode) {
+          case 'floor_dry': {
+            const dryFloor = living > 0 ? Math.max(living, total - baths * 4.5) : Math.max(5, total - baths * 4.5);
+            return round1(dryFloor * 1.07);
+          }
+          case 'wet_tiles':
+            return round1(baths * 4.2 * 1.1);
+          case 'wet_walls': {
+            const hFactor = Math.max(2.0, Number(p.ceilingHeight) || 2.75) / 2.75;
+            return round1(baths * 14 * hFactor * 1.1);
+          }
+          case 'accent_wall':
+            return round1(baths * 6.5 * 1.1);
+          case 'hall_floor': {
+            const hallArea = Math.max(4.5, total * 0.12);
+            return round1(hallArea * 1.1);
+          }
+          case 'walls':
+            return round1(calcWallsArea(p) * 1.1);
+          case 'total_area':
+            return round1(total * 1.05);
+          case 'doors':
+            return doors;
+          case 'bathrooms':
+            return baths;
+          default:
+            return round1(total);
+        }
+      }
+
+      function resolveMaterialQtyMode(category, item) {
+        if (category === 'Керамогранит (пол)') return 'wet_tiles';
+        if (category === 'Керамогранит (стены)') return 'wet_walls';
+        if (category === 'Керамогранит (акцентная стена)') return 'accent_wall';
+        if (category === 'Керамогранит (прихожая)') return 'hall_floor';
+        return item.qtyMode;
+      }
+
+      function getComputedWorks() {
+        return state.workCatalog.map((item) => {
+          const override = state.workOverrides[item.id] || {};
+          const autoVolume = calcWorkVolumeByMode(item.volumeMode, state.params);
+          const autoPrice = Math.round(Number(item.basePrice) || 0);
+
+          const volume = override.volume !== undefined ? Math.max(0, round1(override.volume)) : autoVolume;
+          const price = override.price !== undefined ? Math.max(0, Math.round(override.price)) : autoPrice;
+          const sum = Math.round(volume * price);
+
+          return {
+            id: item.id,
+            section: item.section || '',
+            name: item.name,
+            unit: item.unit,
+            volume,
+            price,
+            sum,
+          };
+        });
+      }
+
+      function getActiveRalInfo() {
+        const preset = RAL_WALL_COLORS.find((c) => c.code === state.selectedRalCode);
+        if (preset) {
+          return {
+            code: preset.code,
+            name: preset.name,
+            hex: preset.hex,
+          };
+        }
+        const raw = (state.customRalNote || state.selectedRalCode || 'RAL 9010').trim();
+        return {
+          code: raw || 'RAL 9010',
+          name: 'Индивидуальный оттенок RAL',
+          hex: '#e2e8f0',
+        };
+      }
+
+      function renderDuluxRalCategoryBlock(paintItem) {
+        const item = paintItem || DULUX_BINDO7_BASE_ITEM;
+        const autoQty = calcMaterialQtyByMode('walls', state.params);
+        const ralInfo = getActiveRalInfo();
+        const totalPaintCost = Math.round(autoQty * (Number(item.price) || 0));
+
+        return `
+          <div class="p-4 sm:p-5 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 rounded-2xl border border-emeraldbrand/30 bg-emeraldbrand-50/35 p-4">
+              <div class="flex items-center gap-3.5">
+                <div
+                  class="w-14 h-14 rounded-2xl border border-slate-300 shadow-inner shrink-0"
+                  style="background-color: ${escapeHtml(ralInfo.hex)}"
+                ></div>
+                <div>
+                  <div class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emeraldbrand-700">
+                    <span>Dulux Bindo 7 • Колеровка по каталогу RAL</span>
+                  </div>
+                  <div class="text-sm sm:text-base font-bold text-graphite mt-0.5">
+                    Выбран оттенок: <span class="text-emeraldbrand-700">${escapeHtml(ralInfo.code)}</span> — ${escapeHtml(ralInfo.name)}
+                  </div>
+                  <div class="text-xs text-slate-600 mt-0.5">
+                    Площадь стен с запасом: <strong>${formatNum(autoQty)} м²</strong> × ${formatRub(item.price)}/м² = <strong>${formatRub(totalPaintCost)}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <input
+                  type="text"
+                  id="customRalInput"
+                  value="${escapeHtml(state.customRalNote)}"
+                  placeholder="Свой код RAL (напр. RAL 7038)"
+                  class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-graphite focus:outline-none focus:border-emeraldbrand w-48"
+                />
+                <button
+                  type="button"
+                  id="applyCustomRalBtn"
+                  class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-graphite hover:bg-graphite-800 text-white transition cursor-pointer"
+                >
+                  Применить RAL
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-xs font-semibold text-slate-600 mb-2.5">Популярные интерьерные оттенки RAL для Dulux Bindo 7:</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
+                ${RAL_WALL_COLORS.map((ral) => {
+                  const isSelected = !state.customRalNote && state.selectedRalCode === ral.code;
+                  return `
+                    <button
+                      type="button"
+                      data-select-ral="${escapeHtml(ral.code)}"
+                      class="text-left rounded-xl border p-2 transition cursor-pointer flex flex-col gap-1.5 ${
+                        isSelected
+                          ? 'border-emeraldbrand bg-emeraldbrand-50/50 ring-2 ring-emeraldbrand/25'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }"
+                    >
+                      <div
+                        class="w-full h-10 rounded-lg border border-slate-200/90"
+                        style="background-color: ${escapeHtml(ral.hex)}"
+                      ></div>
+                      <div class="text-[11px] font-bold text-graphite leading-tight">${escapeHtml(ral.code)}</div>
+                      <div class="text-[10px] text-slate-500 line-clamp-1">${escapeHtml(ral.name)}</div>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderStep2() {
+        const tariff = state.tariffs[state.tariffId] || state.tariffs.comfort;
+        const pill = document.getElementById('step2TariffPill');
+        const matTitle = document.getElementById('materialsTariffTitle');
+        if (pill) pill.textContent = `Пакет: ${tariff.name}`;
+        if (matTitle) matTitle.textContent = tariff.name;
+
+        const switcher = document.getElementById('step2QuickTariffSwitcher');
+        if (switcher) {
+          const order = ['standard', 'comfort', 'comfort_plus', 'premium'];
+          switcher.innerHTML = order
+            .filter((id) => state.tariffs[id])
+            .map((id) => {
+              const t = state.tariffs[id];
+              const active = id === state.tariffId;
+              return `
+                <button
+                  type="button"
+                  data-quick-tariff="${t.id}"
+                  class="px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
+                    active
+                      ? 'bg-emeraldbrand text-white shadow-2xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
+                  }"
+                >
+                  ${escapeHtml(t.name)}
+                </button>
+              `;
+            })
+            .join('');
+        }
+
+        const worksBody = document.getElementById('worksTableBody');
+        const works = getComputedWorks();
+        if (worksBody) {
+          let lastSection = '';
+          const rowsHtml = [];
+          works.forEach((w) => {
+            if (w.section && w.section !== lastSection) {
+              lastSection = w.section;
+              rowsHtml.push(`
+                <tr class="bg-slate-100/90 border-y border-slate-200/80">
+                  <td colspan="5" class="py-2 px-5 text-xs font-bold text-graphite tracking-wide">${escapeHtml(w.section)}</td>
+                </tr>
+              `);
+            }
+            rowsHtml.push(`
+              <tr class="hover:bg-slate-50/70 transition">
+                <td class="py-3 px-5 font-medium text-graphite">${escapeHtml(w.name)}</td>
+                <td class="py-3 px-3 text-center text-slate-500">${escapeHtml(w.unit)}</td>
+                <td class="py-3 px-3 text-right">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value="${w.volume}"
+                    data-work-vol="${w.id}"
+                    class="clean-num w-24 text-right bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-graphite focus:outline-none focus:border-emeraldbrand tabular-nums"
+                  />
+                </td>
+                <td class="py-3 px-3 text-right">
+                  <input
+                    type="number"
+                    min="0"
+                    step="50"
+                    value="${w.price}"
+                    data-work-price="${w.id}"
+                    class="clean-num w-28 text-right bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-graphite focus:outline-none focus:border-emeraldbrand tabular-nums"
+                  />
+                </td>
+                <td data-work-sum="${w.id}" class="py-3 px-5 text-right font-bold text-graphite tabular-nums">${formatRub(w.sum)}</td>
+              </tr>
+            `);
+          });
+          worksBody.innerHTML = rowsHtml.join('');
+        }
+
+        const customCatSelect = document.getElementById('customMatCategory');
+        const categories = getCategoriesForTariff(state.tariffId);
+        if (customCatSelect) {
+          const prevVal = customCatSelect.value;
+          customCatSelect.innerHTML = categories
+            .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+            .join('');
+          if (categories.includes(prevVal)) {
+            customCatSelect.value = prevVal;
+          }
+        }
+
+        const catsContainer = document.getElementById('materialsCategoriesContainer');
+        const tariffMats = state.materialCatalog[state.tariffId] || state.materialCatalog.comfort;
+        const defaultsMap = tariffMats._defaults || {};
+
+        if (catsContainer) {
+          catsContainer.innerHTML = categories
+            .map((category) => {
+              const items = (tariffMats[category] || []).concat(
+                state.customMaterials.filter((m) => m.category === category)
+              );
+              const enabled = state.enabledCategories[category] !== false;
+              const selectedId =
+                state.selectedMaterials[`${state.tariffId}::${category}`] ||
+                defaultsMap[category] ||
+                (items[0] ? items[0].id : '');
+
+              return `
+                <div class="rounded-2xl border ${enabled ? 'border-slate-200/90 bg-white' : 'border-slate-200/60 bg-slate-50/70'} overflow-hidden transition">
+                  <div class="px-4 sm:px-5 py-3.5 bg-slate-50/90 border-b border-slate-200/70 flex flex-wrap items-center justify-between gap-2">
+                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        data-toggle-cat="${escapeHtml(category)}"
+                        ${enabled ? 'checked' : ''}
+                        class="w-4 h-4 rounded accent-emerald-600 cursor-pointer"
+                      />
+                      <span class="font-bold text-sm text-graphite">${escapeHtml(category)}</span>
+                    </label>
+                    <span class="text-xs text-slate-500">
+                      ${enabled ? `Вариантов: ${items.length}` : 'Исключено из расчёта'}
+                    </span>
+                  </div>
+
+                  ${
+                    enabled
+                      ? category === 'Краска для стен (Dulux Bindo 7 RAL)'
+                        ? renderDuluxRalCategoryBlock(items[0])
+                        : `
+                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                          ${items
+                            .map((item) => {
+                              const isSelected = item.id === selectedId;
+                              const mode = resolveMaterialQtyMode(category, item);
+                              const autoQty =
+                                item.customQty !== undefined
+                                  ? round1(item.customQty)
+                                  : calcMaterialQtyByMode(mode, state.params);
+                              const customImg = getSavedMaterialImage(item);
+                              const swatchCls = item.swatchClass || 'swatch-stone-grey';
+
+                              return `
+                                <div
+                                  data-select-mat-cat="${escapeHtml(category)}"
+                                  data-select-mat-id="${escapeHtml(item.id)}"
+                                  class="group rounded-2xl border p-3 flex flex-col justify-between gap-3 transition cursor-pointer ${
+                                    isSelected
+                                      ? 'border-emeraldbrand bg-emeraldbrand-50/40 ring-2 ring-emeraldbrand/20'
+                                      : 'border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-2xs'
+                                  }"
+                                >
+                                  <div class="space-y-2.5">
+                                    <div class="relative h-28 w-full rounded-xl overflow-hidden border border-slate-200/80 ${swatchCls} swatch-surface">
+                                      ${
+                                        customImg
+                                          ? `<img src="${escapeHtml(customImg)}" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover" onerror="this.remove()" />`
+                                          : ''
+                                      }
+                                      <span class="absolute top-2 left-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-white/90 text-graphite shadow-2xs">
+                                        ${escapeHtml(item.badgeText || item.sku || category)}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        data-open-preview-cat="${escapeHtml(category)}"
+                                        data-open-preview-id="${escapeHtml(item.id)}"
+                                        class="absolute bottom-2 right-2 px-2 py-1 rounded-lg text-[11px] font-semibold bg-graphite/85 hover:bg-graphite text-white backdrop-blur-2xs transition cursor-pointer"
+                                      >
+                                        Фото / детали
+                                      </button>
+                                    </div>
+
+                                    <div>
+                                      <div class="text-xs font-bold text-graphite line-clamp-2 leading-snug">${escapeHtml(item.name)}</div>
+                                      <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">${escapeHtml(item.specs || '')}</div>
+                                    </div>
+                                  </div>
+
+                                  <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                                    <div>
+                                      <div class="text-sm font-bold text-graphite tabular-nums">${formatRub(item.price)} <span class="text-[11px] font-normal text-slate-500">/ ${escapeHtml(item.unit)}</span></div>
+                                      <div class="text-[11px] text-emeraldbrand-700 font-medium tabular-nums">Объём: ${formatNum(autoQty)} ${escapeHtml(item.unit)}</div>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${
+                                      isSelected
+                                        ? 'bg-emeraldbrand text-white'
+                                        : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80'
+                                    }">
+                                      ${isSelected ? 'Выбрано' : 'Выбрать'}
+                                    </span>
+                                  </div>
+                                </div>
+                              `;
+                            })
+                            .join('')}
+                        </div>
+                      `
+                      : ''
+                  }
+                </div>
+              `;
+            })
+            .join('');
+        }
+
+        updateLiveTotals();
+      }
+
+      function getSelectedMaterialsList() {
+        const tariffMats = state.materialCatalog[state.tariffId] || state.materialCatalog.comfort;
+        const defaultsMap = tariffMats._defaults || {};
+        const categories = getCategoriesForTariff(state.tariffId);
+        const result = [];
+
+        categories.forEach((category) => {
+          if (state.enabledCategories[category] === false) return;
+          const items = (tariffMats[category] || []).concat(
+            state.customMaterials.filter((m) => m.category === category)
+          );
+          if (!items.length) return;
+
+          const selectedId =
+            state.selectedMaterials[`${state.tariffId}::${category}`] ||
+            defaultsMap[category] ||
+            items[0].id;
+          const item = items.find((x) => x.id === selectedId) || items[0];
+          const mode = resolveMaterialQtyMode(category, item);
+          const qty =
+            item.customQty !== undefined
+              ? Math.max(0, round1(item.customQty))
+              : calcMaterialQtyByMode(mode, state.params);
+          const price = Math.max(0, Number(item.price) || 0);
+          const sum = Math.round(qty * price);
+
+          let displayName = item.name;
+          if (category === 'Краска для стен (Dulux Bindo 7 RAL)') {
+            const ralInfo = getActiveRalInfo();
+            displayName = `Краска Dulux Bindo 7 — цвет ${ralInfo.code} (${ralInfo.name})`;
+          }
+
+          result.push({
+            category,
+            id: item.id,
+            sku: item.sku || '',
+            name: displayName,
+            unit: item.unit || 'шт.',
+            qty,
+            price,
+            sum,
+            url: item.url || '',
+          });
+        });
+
+        return result;
+      }
+
+      function updateLiveTotals() {
+        const works = getComputedWorks();
+        const materials = getSelectedMaterialsList();
+
+        const worksSum = works.reduce((acc, w) => acc + w.sum, 0);
+        const materialsSum = materials.reduce((acc, m) => acc + m.sum, 0);
+        const totalSum = worksSum + materialsSum;
+
+        const wEl = document.getElementById('step2LiveWorksSum');
+        const mEl = document.getElementById('step2LiveMaterialsSum');
+        const tEl = document.getElementById('step2LiveTotalSum');
+
+        if (wEl) wEl.textContent = formatRub(worksSum);
+        if (mEl) mEl.textContent = formatRub(materialsSum);
+        if (tEl) tEl.textContent = formatRub(totalSum);
+      }
+
+      function renderStep3() {
+        const tariff = state.tariffs[state.tariffId] || state.tariffs.comfort;
+        const p = state.params;
+        const totalArea = Math.max(1, Number(p.totalArea) || 1);
+        const works = getComputedWorks();
+        const materials = getSelectedMaterialsList();
+
+        const worksSum = works.reduce((acc, w) => acc + w.sum, 0);
+        const materialsSum = materials.reduce((acc, m) => acc + m.sum, 0);
+        const grandTotal = worksSum + materialsSum;
+
+        const subtitleEl = document.getElementById('reportMetaSubtitle');
+        if (subtitleEl) {
+          subtitleEl.textContent = `Пакет отделки: «${tariff.name}» • Расчёт сформирован ${new Date().toLocaleDateString('ru-RU')}`;
+        }
+
+        const chipsEl = document.getElementById('clientParamsChips');
+        if (chipsEl) {
+          const chips = [
+            `Площадь: ${formatNum(p.totalArea)} м²`,
+            `Жилая: ${formatNum(p.livingArea)} м²`,
+            `Комнат: ${p.roomsCount}`,
+            `С/У: ${p.bathroomsCount}`,
+            `Потолки: ${formatNum(p.ceilingHeight)} м`,
+            `Дверей: ${p.doorsCount}`,
+          ];
+          chipsEl.innerHTML = chips
+            .map((c) => `<span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium">${escapeHtml(c)}</span>`)
+            .join('');
+        }
+
+        document.getElementById('finalWorksSum').textContent = formatRub(worksSum);
+        document.getElementById('finalWorksPerSqm').textContent = `${formatRub(worksSum / totalArea)} / м²`;
+
+        document.getElementById('finalMaterialsSum').textContent = formatRub(materialsSum);
+        document.getElementById('finalMaterialsPerSqm').textContent = `${formatRub(materialsSum / totalArea)} / м²`;
+
+        document.getElementById('finalGrandTotal').textContent = formatRub(grandTotal);
+        document.getElementById('finalTotalPerSqm').textContent = `${formatRub(grandTotal / totalArea)} / м²`;
+
+        const clientMatsEl = document.getElementById('clientSelectedMaterialsList');
+        if (clientMatsEl) {
+          if (!materials.length) {
+            clientMatsEl.innerHTML = `<div class="col-span-full text-slate-500 bg-slate-50 rounded-xl p-4">Материалы не выбраны или категории отключены.</div>`;
+          } else {
+            clientMatsEl.innerHTML = materials
+              .map((m) => `
+                <div class="rounded-xl border border-slate-200/80 bg-slate-50/60 p-3.5 flex flex-col justify-between gap-2">
+                  <div>
+                    <div class="text-[11px] font-semibold uppercase tracking-wider text-emeraldbrand-700">${escapeHtml(m.category)}</div>
+                    <div class="font-semibold text-graphite mt-0.5">${escapeHtml(m.name)}</div>
+                  </div>
+                  <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                    <span class="text-slate-600 tabular-nums">${formatNum(m.qty)} ${escapeHtml(m.unit)} × ${formatRub(m.price)}</span>
+                    <span class="font-bold text-graphite tabular-nums">${formatRub(m.sum)}</span>
+                  </div>
+                </div>
+              `)
+              .join('');
+          }
+        }
+
+        const execMetaEl = document.getElementById('executorHeaderMeta');
+        if (execMetaEl) {
+          execMetaEl.textContent = `Пакет: ${tariff.name} • Объект: ${formatNum(p.totalArea)} м² • Потолки: ${formatNum(p.ceilingHeight)} м • С/У: ${p.bathroomsCount}`;
+        }
+
+        const execWorksBody = document.getElementById('executorWorksTableBody');
+        if (execWorksBody) {
+          let lastExecSection = '';
+          const execRows = [];
+          works.forEach((w, idx) => {
+            if (w.section && w.section !== lastExecSection) {
+              lastExecSection = w.section;
+              execRows.push(`
+                <tr class="bg-slate-100/80">
+                  <td colspan="6" class="py-2 px-3 text-xs font-bold text-graphite">${escapeHtml(w.section)}</td>
+                </tr>
+              `);
+            }
+            execRows.push(`
+              <tr>
+                <td class="py-2.5 px-3 text-slate-400 tabular-nums">${idx + 1}</td>
+                <td class="py-2.5 px-3 font-medium text-graphite">${escapeHtml(w.name)}</td>
+                <td class="py-2.5 px-3 text-center text-slate-500">${escapeHtml(w.unit)}</td>
+                <td class="py-2.5 px-3 text-right tabular-nums">${formatNum(w.volume)}</td>
+                <td class="py-2.5 px-3 text-right tabular-nums">${formatRub(w.price)}</td>
+                <td class="py-2.5 px-3 text-right font-semibold text-graphite tabular-nums">${formatRub(w.sum)}</td>
+              </tr>
+            `);
+          });
+          execWorksBody.innerHTML = execRows.join('');
+        }
+        document.getElementById('executorWorksTotalCell').textContent = formatRub(worksSum);
+
+        const execMatsBody = document.getElementById('executorMaterialsTableBody');
+        if (execMatsBody) {
+          execMatsBody.innerHTML = materials
+            .map((m) => `
+              <tr>
+                <td class="py-2.5 px-3 text-xs font-semibold text-slate-600">${escapeHtml(m.category)}</td>
+                <td class="py-2.5 px-3 font-medium text-graphite">
+                  ${escapeHtml(m.name)}
+                  ${m.sku ? `<span class="text-xs text-slate-400 ml-1.5">[арт. ${escapeHtml(m.sku)}]</span>` : ''}
+                </td>
+                <td class="py-2.5 px-3 text-right tabular-nums">${formatNum(m.qty)}</td>
+                <td class="py-2.5 px-3 text-center text-slate-500">${escapeHtml(m.unit)}</td>
+                <td class="py-2.5 px-3 text-right tabular-nums">${formatRub(m.price)}</td>
+                <td class="py-2.5 px-3 text-right font-semibold text-graphite tabular-nums">${formatRub(m.sum)}</td>
+              </tr>
+            `)
+            .join('');
+        }
+        document.getElementById('executorMaterialsTotalCell').textContent = formatRub(materialsSum);
+      }
+
+      function copyExecutorToClipboard() {
+        const tariff = state.tariffs[state.tariffId] || state.tariffs.comfort;
+        const p = state.params;
+        const works = getComputedWorks();
+        const materials = getSelectedMaterialsList();
+        const worksSum = works.reduce((acc, w) => acc + w.sum, 0);
+        const materialsSum = materials.reduce((acc, m) => acc + m.sum, 0);
+
+        const lines = [
+          `СМЕТА ДЛЯ ИСПОЛНИТЕЛЯ — ПАКЕТ «${tariff.name.toUpperCase()}»`,
+          `Объект: ${formatNum(p.totalArea)} м² (жилая ${formatNum(p.livingArea)} м²), комнат: ${p.roomsCount}, с/у: ${p.bathroomsCount}, потолки: ${formatNum(p.ceilingHeight)} м, дверей: ${p.doorsCount}`,
+          '',
+          'РАБОТЫ:',
+          ...works.map((w, i) => `${i + 1}. ${w.name} — ${formatNum(w.volume)} ${w.unit} × ${formatRub(w.price)} = ${formatRub(w.sum)}`),
+          `Итого работ: ${formatRub(worksSum)}`,
+          '',
+          'МАТЕРИАЛЫ:',
+          ...materials.map((m) => `- [${m.category}] ${m.name}${m.sku ? ` (арт. ${m.sku})` : ''}: ${formatNum(m.qty)} ${m.unit} × ${formatRub(m.price)} = ${formatRub(m.sum)}`),
+          `Итого материалов: ${formatRub(materialsSum)}`,
+          `ИТОГО: ${formatRub(worksSum + materialsSum)}`,
+        ].join('\n');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lines).then(
+            () => showToast('Смета исполнителя скопирована в буфер обмена'),
+            () => fallbackCopy(lines)
+          );
+        } else {
+          fallbackCopy(lines);
+        }
+      }
+
+      function findMaterialById(category, itemId) {
+        const tariffMats = state.materialCatalog[state.tariffId] || state.materialCatalog.comfort;
+        const pool = (tariffMats[category] || []).concat(
+          state.customMaterials.filter((m) => m.category === category)
+        );
+        return pool.find((x) => x.id === itemId) || null;
+      }
+
+      function openMaterialPreview(category, itemId) {
+        const item = findMaterialById(category, itemId);
+        if (!item) return;
+
+        state.previewContext = { category, itemId };
+
+        const modal = document.getElementById('materialPreviewModal');
+        const skuEl = document.getElementById('previewModalSku');
+        const titleEl = document.getElementById('previewModalTitle');
+        const priceEl = document.getElementById('previewModalPrice');
+        const packEl = document.getElementById('previewModalPack');
+        const specsEl = document.getElementById('previewModalSpecs');
+        const noteEl = document.getElementById('previewModalNote');
+        const linkEl = document.getElementById('previewModalCatalogLink');
+        const swatchEl = document.getElementById('previewModalSwatch');
+        const imgEl = document.getElementById('previewModalImg');
+        const urlInput = document.getElementById('previewCustomUrlInput');
+
+        skuEl.textContent = `${category}${item.sku ? ` • Арт. ${item.sku}` : ''}`;
+        titleEl.textContent = item.name;
+        priceEl.textContent = `${formatRub(item.price)} / ${item.unit || 'шт.'}`;
+        packEl.textContent = item.packInfo ? `Фасовка / формат: ${item.packInfo}` : `Единица измерения: ${item.unit || 'шт.'}`;
+        specsEl.textContent = item.specs || '';
+        noteEl.textContent =
+          'Нажмите «Выбрать в смету», чтобы закрепить позицию за этим разделом, либо подставьте своё фото по ссылке или с устройства для показа клиенту.';
+
+        if (item.url) {
+          linkEl.href = item.url;
+          linkEl.classList.remove('hidden');
+        } else {
+          linkEl.classList.add('hidden');
+        }
+
+        swatchEl.className = `swatch-surface absolute inset-0 ${item.swatchClass || 'swatch-stone-grey'}`;
+        const customImg = getSavedMaterialImage(item);
+        urlInput.value = customImg.startsWith('http') ? customImg : '';
+
+        if (customImg) {
+          imgEl.src = customImg;
+          imgEl.alt = item.name;
+          imgEl.classList.remove('hidden');
+        } else {
+          imgEl.src = '';
+          imgEl.classList.add('hidden');
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeMaterialPreview() {
+        const modal = document.getElementById('materialPreviewModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        state.previewContext = null;
+      }
+
+      function openCatalogEditor(tabName) {
+        if (tabName) state.editorActiveTab = tabName;
+        const modal = document.getElementById('catalogEditorModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        renderCatalogEditor();
+      }
+
+      function closeCatalogEditor() {
+        const modal = document.getElementById('catalogEditorModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      function renderCatalogEditor() {
+        document.querySelectorAll('.editor-tab-btn').forEach((btn) => {
+          const isActive = btn.getAttribute('data-editor-tab') === state.editorActiveTab;
+          btn.className = `editor-tab-btn px-4 py-2 rounded-t-xl text-xs sm:text-sm font-semibold border-b-2 transition cursor-pointer ${
+            isActive
+              ? 'border-emeraldbrand text-emeraldbrand-700 bg-white'
+              : 'border-transparent text-slate-500 hover:text-graphite'
+          }`;
+        });
+
+        const body = document.getElementById('catalogEditorBody');
+        if (!body) return;
+
+        if (state.editorActiveTab === 'tariffs') {
+          body.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${Object.values(state.tariffs)
+                .map((t) => `
+                  <div class="rounded-2xl border border-slate-200 p-4 space-y-3 bg-slate-50/40">
+                    <div class="font-bold text-graphite text-sm">${escapeHtml(t.name)}</div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Ориентир работ (₽/м²)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="100"
+                          value="${t.workPricePerSqm}"
+                          data-edit-tariff-price="${t.id}"
+                          class="clean-num w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-graphite tabular-nums"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Коэф. расценок работ</label>
+                        <input
+                          type="number"
+                          min="0.1"
+                          max="5"
+                          step="0.05"
+                          value="${t.workMultiplier}"
+                          data-edit-tariff-mult="${t.id}"
+                          class="clean-num w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-semibold text-graphite tabular-nums"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                `)
+                .join('')}
+            </div>
+          `;
+        } else if (state.editorActiveTab === 'works') {
+          body.innerHTML = `
+            <div class="space-y-3">
+              <div class="text-xs text-slate-500">Базовые расценки текущего состава работ для пакета «${escapeHtml(state.tariffs[state.tariffId].name)}»:</div>
+              <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden">
+                ${state.workCatalog
+                  .map((w) => `
+                    <div class="p-3.5 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div class="min-w-0">
+                        ${w.section ? `<div class="text-[10px] font-bold uppercase tracking-wider text-emeraldbrand-700">${escapeHtml(w.section)}</div>` : ''}
+                        <div class="text-sm font-medium text-graphite">${escapeHtml(w.name)}</div>
+                        <div class="text-xs text-slate-400">Ед.: ${escapeHtml(w.unit)}</div>
+                      </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-xs text-slate-500">База, ₽:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="50"
+                          value="${w.basePrice}"
+                          data-edit-work-base="${w.id}"
+                          class="clean-num w-28 text-right bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-sm font-semibold text-graphite tabular-nums"
+                        />
+                      </div>
+                    </div>
+                  `)
+                  .join('')}
+              </div>
+            </div>
+          `;
+        } else if (state.editorActiveTab === 'materials') {
+          const tariffMats = state.materialCatalog[state.tariffId] || state.materialCatalog.comfort;
+          const categories = getCategoriesForTariff(state.tariffId);
+
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="text-xs text-slate-500">
+                Редактирование цен материалов для текущего пакета: <strong class="text-graphite">${escapeHtml(state.tariffs[state.tariffId].name)}</strong>
+              </div>
+              ${categories
+                .map((cat) => {
+                  const list = tariffMats[cat] || [];
+                  return `
+                    <div class="rounded-2xl border border-slate-200 overflow-hidden">
+                      <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-xs font-bold text-graphite">${escapeHtml(cat)}</div>
+                      <div class="divide-y divide-slate-100 bg-white">
+                        ${list
+                          .map((item) => `
+                            <div class="px-4 py-2.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                              <div class="truncate">
+                                <span class="font-medium text-graphite">${escapeHtml(item.name)}</span>
+                                ${item.sku ? `<span class="text-xs text-slate-400 ml-1">[${escapeHtml(item.sku)}]</span>` : ''}
+                              </div>
+                              <div class="flex items-center gap-1.5 shrink-0">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="10"
+                                  value="${item.price}"
+                                  data-edit-mat-cat="${escapeHtml(cat)}"
+                                  data-edit-mat-id="${escapeHtml(item.id)}"
+                                  class="clean-num w-24 text-right bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs sm:text-sm font-semibold text-graphite tabular-nums"
+                                />
+                                <span class="text-xs text-slate-500 w-10">₽/${escapeHtml(item.unit)}</span>
+                              </div>
+                            </div>
+                          `)
+                          .join('')}
+                      </div>
+                    </div>
+                  `;
+                })
+                .join('')}
+            </div>
+          `;
+        } else if (state.editorActiveTab === 'images') {
+          const allMaterials = getAllUniqueCatalogMaterials();
+          body.innerHTML = `
+            <div class="space-y-4">
+              <div class="rounded-2xl bg-emeraldbrand-50/60 border border-emeraldbrand-200/80 p-3.5 text-xs text-slate-700 leading-relaxed">
+                Вставьте прямую ссылку на картинку (<code>https://...</code>) один раз — она автоматически сохранится в облаке и применится ко всем пакетам отделки.
+                Если вы запускаете приложение из локального файла на ПК, нажмите <strong>«Скачать HTML с вшитыми фото»</strong> внизу окна, чтобы сохранить копию со всеми картинками внутри.
+              </div>
+              <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white">
+                ${allMaterials
+                  .map(({ category, item }) => {
+                    const key = getMaterialImageKey(item);
+                    const savedUrl = getSavedMaterialImage(item);
+                    return `
+                      <div class="p-3.5 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden shrink-0 ${item.swatchClass || 'swatch-stone-grey'} swatch-surface">
+                          ${savedUrl ? `<img src="${escapeHtml(savedUrl)}" alt="" class="w-full h-full object-cover" onerror="this.remove()" />` : ''}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="text-[10px] font-bold uppercase tracking-wider text-emeraldbrand-700">${escapeHtml(category)}${item.sku ? ` • Арт. ${escapeHtml(item.sku)}` : ''}</div>
+                          <div class="text-xs sm:text-sm font-semibold text-graphite truncate">${escapeHtml(item.name)}</div>
+                        </div>
+                        <div class="w-full sm:w-72 shrink-0">
+                          <input
+                            type="text"
+                            value="${escapeHtml(savedUrl.startsWith('http') ? savedUrl : '')}"
+                            placeholder="https://... ссылка на фото"
+                            data-edit-img-key="${escapeHtml(key)}"
+                            data-edit-img-id="${escapeHtml(item.id)}"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-graphite focus:outline-none focus:border-emeraldbrand"
+                          />
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join('')}
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      function saveCatalogEditorChanges() {
+        const body = document.getElementById('catalogEditorBody');
+        if (!body) return;
+
+        body.querySelectorAll('[data-edit-tariff-price]').forEach((input) => {
+          const tid = input.getAttribute('data-edit-tariff-price');
+          if (state.tariffs[tid]) {
+            state.tariffs[tid].workPricePerSqm = Math.max(0, Number(input.value) || 0);
+          }
+        });
+
+        body.querySelectorAll('[data-edit-tariff-mult]').forEach((input) => {
+          const tid = input.getAttribute('data-edit-tariff-mult');
+          if (state.tariffs[tid]) {
+            const m = Number(input.value);
+            state.tariffs[tid].workMultiplier = Number.isFinite(m) && m > 0 ? m : 1;
+          }
+        });
+
+        body.querySelectorAll('[data-edit-work-base]').forEach((input) => {
+          const wid = input.getAttribute('data-edit-work-base');
+          const found = state.workCatalog.find((w) => w.id === wid);
+          if (found) {
+            found.basePrice = Math.max(0, Number(input.value) || 0);
+          }
+        });
+
+        const tariffMats = state.materialCatalog[state.tariffId];
+        if (tariffMats) {
+          body.querySelectorAll('[data-edit-mat-id]').forEach((input) => {
+            const cat = input.getAttribute('data-edit-mat-cat');
+            const mid = input.getAttribute('data-edit-mat-id');
+            const arr = tariffMats[cat] || [];
+            const found = arr.find((x) => x.id === mid);
+            if (found) {
+              found.price = Math.max(0, Number(input.value) || 0);
+            }
+          });
+        }
+
+        body.querySelectorAll('[data-edit-img-key]').forEach((input) => {
+          const key = input.getAttribute('data-edit-img-key');
+          const id = input.getAttribute('data-edit-img-id');
+          const val = (input.value || '').trim();
+          if (val) {
+            state.customImages[key] = val;
+            if (id) state.customImages[id] = val;
+          } else {
+            delete state.customImages[key];
+            if (id) delete state.customImages[id];
+          }
+        });
+
+        closeCatalogEditor();
+        saveCatalogSettingsToCloud();
+        showToast('Изменения тарифов, цен и картинок сохранены');
+        renderCurrentView();
+      }
+
+      function resetCatalogToDefaults() {
+        state.tariffs = deepClone(DEFAULT_TARIFFS);
+        state.materialCatalog = deepClone(DEFAULT_MATERIAL_CATALOG);
+        state.customImages = deepClone(EMBEDDED_CUSTOM_IMAGES);
+        state.customMaterials = [];
+        state.selectedMaterials = {};
+        applyWorkCatalogForTariff(state.tariffId, false);
+        saveCatalogSettingsToCloud();
+        renderCatalogEditor();
+        renderCurrentView();
+        showToast('Каталог и расценки сброшены к заводским значениям');
+      }
+
+      function downloadStandaloneHtmlWithImages() {
+        try {
+          const docHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          const serializedImages = JSON.stringify(state.customImages || {});
+          const updatedHtml = docHtml.replace(
+            /const EMBEDDED_CUSTOM_IMAGES = \{[\s\S]*?\};/,
+            `const EMBEDDED_CUSTOM_IMAGES = ${serializedImages};`
+          );
+          const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'index.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('Файл index.html с вшитыми картинками скачан');
+        } catch (err) {
+          console.error('Ошибка экспорта HTML:', err);
+          showToast('Не удалось сформировать файл для скачивания');
+        }
+      }
+
+      function fallbackCopy(text) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('Смета исполнителя скопирована в буфер обмена');
+        } catch (err) {
+          showToast('Не удалось скопировать автоматически');
+        }
+      }
+
+      function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className =
+          'bg-graphite text-white text-xs sm:text-sm font-medium px-4 py-3 rounded-xl shadow-lg border border-white/10 transition-all duration-300';
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(6px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 2600);
+      }
+
+      function setStep(stepNum) {
+        const clamped = Math.min(3, Math.max(1, Number(stepNum) || 1));
+        state.step = clamped;
+
+        document.querySelectorAll('.step-section').forEach((sec) => {
+          const isTarget = sec.id === `step-${clamped}`;
+          sec.classList.toggle('hidden', !isTarget);
+        });
+
+        document.querySelectorAll('.step-nav-btn').forEach((btn) => {
+          const n = Number(btn.getAttribute('data-step-nav'));
+          const badge = btn.querySelector('.step-badge');
+          if (n === clamped) {
+            btn.className =
+              'step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold bg-emeraldbrand-50 text-emeraldbrand-700 border border-emeraldbrand-200/80 transition-all cursor-pointer';
+            if (badge) badge.className = 'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center step-badge bg-emeraldbrand text-white';
+          } else if (n < clamped) {
+            btn.className =
+              'step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-graphite hover:bg-slate-100 transition-all cursor-pointer';
+            if (badge) badge.className = 'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center step-badge bg-emeraldbrand-100 text-emeraldbrand-700';
+          } else {
+            btn.className =
+              'step-nav-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-100 transition-all cursor-pointer';
+            if (badge) badge.className = 'w-6 h-6 rounded-full text-xs font-semibold flex items-center justify-center step-badge bg-slate-200 text-slate-600';
+          }
+        });
+
+        document.querySelectorAll('.mobile-step-pill').forEach((pill) => {
+          const n = Number(pill.getAttribute('data-step-nav'));
+          if (n === clamped) {
+            pill.className = 'mobile-step-pill px-2.5 py-1 rounded-lg font-semibold bg-emeraldbrand text-white transition cursor-pointer';
+          } else {
+            pill.className = 'mobile-step-pill px-2.5 py-1 rounded-lg font-medium bg-slate-100 text-slate-600 transition cursor-pointer';
+          }
+        });
+
+        renderCurrentView();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderCurrentView() {
+        const tariff = state.tariffs[state.tariffId] || state.tariffs.comfort;
+        const mobileBadge = document.getElementById('mobileActiveTariffBadge');
+        if (mobileBadge) mobileBadge.textContent = tariff.name;
+
+        if (state.step === 1) {
+          renderStep1();
+        } else if (state.step === 2) {
+          renderStep2();
+        } else if (state.step === 3) {
+          renderStep3();
+        }
+      }
+
+      function bindEvents() {
+        document.querySelectorAll('[data-step-nav]').forEach((el) => {
+          el.addEventListener('click', () => {
+            const targetStep = Number(el.getAttribute('data-step-nav'));
+            setStep(targetStep);
+          });
+        });
+
+        const paramInputs = [
+          { id: 'inputTotalArea', key: 'totalArea', isFloat: true },
+          { id: 'inputLivingArea', key: 'livingArea', isFloat: true },
+          { id: 'inputRoomsCount', key: 'roomsCount', isFloat: false },
+          { id: 'inputBathroomsCount', key: 'bathroomsCount', isFloat: false },
+          { id: 'inputCeilingHeight', key: 'ceilingHeight', isFloat: true },
+          { id: 'inputDoorsCount', key: 'doorsCount', isFloat: false },
+        ];
+
+        paramInputs.forEach(({ id, key, isFloat }) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', () => {
+            const raw = parseFloat(el.value);
+            if (!Number.isNaN(raw)) {
+              state.params[key] = isFloat ? round1(raw) : Math.max(0, Math.round(raw));
+              renderStep1();
+            }
+          });
+        });
+
+        document.querySelectorAll('[data-stepper]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-stepper');
+            const delta = Number(btn.getAttribute('data-delta')) || 0;
+            const inputEl = document.getElementById(targetId);
+            if (!inputEl) return;
+            const current = parseInt(inputEl.value, 10) || 0;
+            const minVal = parseInt(inputEl.min, 10) || 0;
+            const nextVal = Math.max(minVal, current + delta);
+            inputEl.value = String(nextVal);
+            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        });
+
+        document.getElementById('resetDefaultParamsBtn')?.addEventListener('click', () => {
+          state.params = {
+            totalArea: 65,
+            livingArea: 38,
+            roomsCount: 2,
+            bathroomsCount: 2,
+            ceilingHeight: 2.75,
+            doorsCount: 5,
+          };
+          syncParamInputsFromState();
+          renderStep1();
+          showToast('Параметры сброшены к примеру (65 м²)');
+        });
+
+        document.getElementById('tariffCardsGrid')?.addEventListener('click', (e) => {
+          const card = e.target.closest('[data-tariff-id]');
+          if (!card) return;
+          const tid = card.getAttribute('data-tariff-id');
+          if (tid && state.tariffs[tid]) {
+            state.tariffId = tid;
+            applyWorkCatalogForTariff(tid, false);
+            renderStep1();
+          }
+        });
+
+        document.getElementById('goToStep2Btn')?.addEventListener('click', () => setStep(2));
+
+        document.getElementById('step2QuickTariffSwitcher')?.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-quick-tariff]');
+          if (!btn) return;
+          const tid = btn.getAttribute('data-quick-tariff');
+          if (tid && state.tariffs[tid]) {
+            state.tariffId = tid;
+            applyWorkCatalogForTariff(tid, false);
+            renderStep2();
+          }
+        });
+
+        document.getElementById('recalculateVolumesBtn')?.addEventListener('click', () => {
+          state.workOverrides = {};
+          renderStep2();
+          showToast('Объёмы пересчитаны из параметров квартиры');
+        });
+
+        function updateSingleWorkRowSum(workId) {
+          const item = getComputedWorks().find((w) => w.id === workId);
+          const sumCell = document.querySelector(`[data-work-sum="${workId}"]`);
+          if (item && sumCell) {
+            sumCell.textContent = formatRub(item.sum);
+          }
+          updateLiveTotals();
+        }
+
+        document.getElementById('worksTableBody')?.addEventListener('input', (e) => {
+          const volInput = e.target.closest('[data-work-vol]');
+          const priceInput = e.target.closest('[data-work-price]');
+          if (volInput) {
+            const wid = volInput.getAttribute('data-work-vol');
+            state.workOverrides[wid] = state.workOverrides[wid] || {};
+            const parsed = parseFloat(String(volInput.value).replace(',', '.'));
+            state.workOverrides[wid].volume = Number.isFinite(parsed) && parsed >= 0 ? round1(parsed) : 0;
+            updateSingleWorkRowSum(wid);
+          } else if (priceInput) {
+            const wid = priceInput.getAttribute('data-work-price');
+            state.workOverrides[wid] = state.workOverrides[wid] || {};
+            const parsed = parseFloat(String(priceInput.value).replace(',', '.'));
+            state.workOverrides[wid].price = Number.isFinite(parsed) && parsed >= 0 ? Math.round(parsed) : 0;
+            updateSingleWorkRowSum(wid);
+          }
+        });
+
+        document.getElementById('worksTableBody')?.addEventListener('change', (e) => {
+          const volInput = e.target.closest('[data-work-vol]');
+          const priceInput = e.target.closest('[data-work-price]');
+          if (volInput) {
+            const wid = volInput.getAttribute('data-work-vol');
+            const val = state.workOverrides[wid]?.volume ?? 0;
+            volInput.value = String(val);
+            updateSingleWorkRowSum(wid);
+          } else if (priceInput) {
+            const wid = priceInput.getAttribute('data-work-price');
+            const val = state.workOverrides[wid]?.price ?? 0;
+            priceInput.value = String(val);
+            updateSingleWorkRowSum(wid);
+          }
+        });
+
+        document.getElementById('materialsCategoriesContainer')?.addEventListener('change', (e) => {
+          const toggle = e.target.closest('[data-toggle-cat]');
+          if (toggle) {
+            const cat = toggle.getAttribute('data-toggle-cat');
+            state.enabledCategories[cat] = toggle.checked;
+            renderStep2();
+          }
+        });
+
+        document.getElementById('materialsCategoriesContainer')?.addEventListener('click', (e) => {
+          const ralBtn = e.target.closest('[data-select-ral]');
+          if (ralBtn) {
+            state.selectedRalCode = ralBtn.getAttribute('data-select-ral') || 'RAL 9010';
+            state.customRalNote = '';
+            renderStep2();
+            return;
+          }
+
+          const applyRalBtn = e.target.closest('#applyCustomRalBtn');
+          if (applyRalBtn) {
+            const val = (document.getElementById('customRalInput')?.value || '').trim();
+            if (val) {
+              state.customRalNote = val.toUpperCase().startsWith('RAL') ? val.toUpperCase() : `RAL ${val}`;
+              state.selectedRalCode = state.customRalNote;
+              renderStep2();
+              showToast(`Выбран оттенок ${state.customRalNote} для Dulux Bindo 7`);
+            }
+            return;
+          }
+
+          const previewBtn = e.target.closest('[data-open-preview-id]');
+          if (previewBtn) {
+            e.stopPropagation();
+            const cat = previewBtn.getAttribute('data-open-preview-cat');
+            const id = previewBtn.getAttribute('data-open-preview-id');
+            openMaterialPreview(cat, id);
+            return;
+          }
+
+          const card = e.target.closest('[data-select-mat-id]');
+          if (card) {
+            const cat = card.getAttribute('data-select-mat-cat');
+            const id = card.getAttribute('data-select-mat-id');
+            state.selectedMaterials[`${state.tariffId}::${cat}`] = id;
+            renderStep2();
+          }
+        });
+
+        document.getElementById('toggleCustomMaterialFormBtn')?.addEventListener('click', () => {
+          document.getElementById('customMaterialForm')?.classList.toggle('hidden');
+        });
+        document.getElementById('cancelCustomMaterialBtn')?.addEventListener('click', () => {
+          document.getElementById('customMaterialForm')?.classList.add('hidden');
+        });
+        document.getElementById('saveCustomMaterialBtn')?.addEventListener('click', () => {
+          const cat = document.getElementById('customMatCategory')?.value || 'Напольное покрытие';
+          const name = (document.getElementById('customMatName')?.value || '').trim();
+          const unit = (document.getElementById('customMatUnit')?.value || 'шт.').trim() || 'шт.';
+          const qty = Math.max(0, round1(parseFloat(document.getElementById('customMatQty')?.value) || 1));
+          const price = Math.max(0, Math.round(parseFloat(document.getElementById('customMatPrice')?.value) || 0));
+
+          if (!name) {
+            showToast('Введите название материала');
+            return;
+          }
+
+          const newId = `custom_${Date.now()}`;
+          state.customMaterials.push({
+            id: newId,
+            category: cat,
+            sku: 'СВОЙ',
+            name,
+            specs: 'Добавлено вручную на встрече',
+            packInfo: unit,
+            unit,
+            price,
+            customQty: qty,
+            qtyMode: 'total_area',
+            swatchClass: 'swatch-paint-soft',
+            badgeText: 'Свой вариант',
+          });
+          state.enabledCategories[cat] = true;
+          state.selectedMaterials[`${state.tariffId}::${cat}`] = newId;
+
+          document.getElementById('customMatName').value = '';
+          document.getElementById('customMaterialForm')?.classList.add('hidden');
+          saveCatalogSettingsToCloud();
+          renderStep2();
+          showToast('Материал добавлен в смету');
+        });
+
+        document.getElementById('backToStep1Btn')?.addEventListener('click', () => setStep(1));
+        document.getElementById('goToStep3Btn')?.addEventListener('click', () => setStep(3));
+        document.getElementById('backToStep2Btn')?.addEventListener('click', () => setStep(2));
+
+        document.getElementById('newCalculationBtn')?.addEventListener('click', () => {
+          state.workOverrides = {};
+          state.selectedMaterials = {};
+          setStep(1);
+          showToast('Начат новый расчёт');
+        });
+
+        document.getElementById('copyExecutorBtn')?.addEventListener('click', copyExecutorToClipboard);
+        document.getElementById('printReportBtn')?.addEventListener('click', () => window.print());
+
+        document.getElementById('closeMaterialPreviewBtn')?.addEventListener('click', closeMaterialPreview);
+        document.getElementById('cancelPreviewModalBtn')?.addEventListener('click', closeMaterialPreview);
+
+        document.getElementById('selectItemFromPreviewBtn')?.addEventListener('click', () => {
+          if (state.previewContext) {
+            const { category, itemId } = state.previewContext;
+            state.selectedMaterials[`${state.tariffId}::${category}`] = itemId;
+            state.enabledCategories[category] = true;
+          }
+          closeMaterialPreview();
+          if (state.step === 2) renderStep2();
+          showToast('Материал выбран в смету');
+        });
+
+        document.getElementById('applyPreviewUrlBtn')?.addEventListener('click', () => {
+          if (!state.previewContext) return;
+          const url = (document.getElementById('previewCustomUrlInput')?.value || '').trim();
+          if (!url) return;
+          const item = findMaterialById(state.previewContext.category, state.previewContext.itemId);
+          if (item) {
+            setSavedMaterialImage(item, url);
+          } else {
+            state.customImages[state.previewContext.itemId] = url;
+          }
+          saveCatalogSettingsToCloud();
+          openMaterialPreview(state.previewContext.category, state.previewContext.itemId);
+          if (state.step === 2) renderStep2();
+          showToast('Ссылка на картинку сохранена для всех пакетов');
+        });
+
+        document.getElementById('previewCustomUrlInput')?.addEventListener('change', () => {
+          if (!state.previewContext) return;
+          const url = (document.getElementById('previewCustomUrlInput')?.value || '').trim();
+          if (!url) return;
+          const item = findMaterialById(state.previewContext.category, state.previewContext.itemId);
+          if (item) {
+            setSavedMaterialImage(item, url);
+            saveCatalogSettingsToCloud();
+            const imgEl = document.getElementById('previewModalImg');
+            if (imgEl) {
+              imgEl.src = url;
+              imgEl.classList.remove('hidden');
+            }
+            if (state.step === 2) renderStep2();
+            showToast('Ссылка на картинку сохранена');
+          }
+        });
+
+        document.getElementById('previewFileInput')?.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file || !state.previewContext) return;
+          const ctx = { ...state.previewContext };
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (typeof reader.result === 'string') {
+              if (reader.result.length > 700000) {
+                showToast('Файл слишком большой для сохранения — лучше вставьте ссылку на картинку');
+                return;
+              }
+              const item = findMaterialById(ctx.category, ctx.itemId);
+              if (item) {
+                setSavedMaterialImage(item, reader.result);
+              } else {
+                state.customImages[ctx.itemId] = reader.result;
+              }
+              saveCatalogSettingsToCloud();
+              openMaterialPreview(ctx.category, ctx.itemId);
+              if (state.step === 2) renderStep2();
+              showToast('Фото загружено и сохранено');
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('resetPreviewImageBtn')?.addEventListener('click', () => {
+          if (!state.previewContext) return;
+          const item = findMaterialById(state.previewContext.category, state.previewContext.itemId);
+          if (item) {
+            setSavedMaterialImage(item, '');
+          } else {
+            delete state.customImages[state.previewContext.itemId];
+          }
+          saveCatalogSettingsToCloud();
+          openMaterialPreview(state.previewContext.category, state.previewContext.itemId);
+          if (state.step === 2) renderStep2();
+          showToast('Фото сброшено к фактуре');
+        });
+
+        document.getElementById('openCatalogEditorBtn')?.addEventListener('click', () => openCatalogEditor());
+        document.getElementById('closeCatalogEditorBtn')?.addEventListener('click', closeCatalogEditor);
+        document.getElementById('cancelCatalogEditorBtn')?.addEventListener('click', closeCatalogEditor);
+        document.getElementById('saveCatalogEditorBtn')?.addEventListener('click', saveCatalogEditorChanges);
+        document.getElementById('resetCatalogDefaultsBtn')?.addEventListener('click', resetCatalogToDefaults);
+        document.getElementById('exportStandaloneHtmlBtn')?.addEventListener('click', downloadStandaloneHtmlWithImages);
+
+        document.querySelectorAll('.editor-tab-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            state.editorActiveTab = btn.getAttribute('data-editor-tab') || 'tariffs';
+            renderCatalogEditor();
+          });
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderStep1() {
+        const p = state.params;
+        const wallsArea = calcWallsArea(p);
+        const totalArea = Math.max(1, Number(p.totalArea) || 65);
+        const tariff = state.tariffs[state.tariffId] || state.tariffs.comfort;
+        const quickWorkSum = Math.round(totalArea * (Number(tariff.workPricePerSqm) || 0));
+
+        const quickSumEl = document.getElementById('step1QuickWorkSum');
+        const quickWallsEl = document.getElementById('step1QuickWallsArea');
+        const summaryLabelEl = document.getElementById('selectedTariffSummaryLabel');
+        const valMsgEl = document.getElementById('step1ValidationMsg');
+
+        if (quickSumEl) quickSumEl.textContent = formatRub(quickWorkSum);
+        if (quickWallsEl) quickWallsEl.textContent = `${formatNum(wallsArea)} м²`;
+        if (summaryLabelEl) summaryLabelEl.textContent = tariff.name;
+
+        if (valMsgEl) {
+          if (Number(p.livingArea) > Number(p.totalArea)) {
+            valMsgEl.textContent = 'Обратите внимание: жилая площадь указана больше общей площади квартиры.';
+            valMsgEl.classList.remove('hidden');
+          } else {
+            valMsgEl.classList.add('hidden');
+          }
+        }
+
+        const grid = document.getElementById('tariffCardsGrid');
+        if (!grid) return;
+
+        const order = ['standard', 'comfort', 'comfort_plus', 'premium'];
+        grid.innerHTML = order
+          .filter((id) => state.tariffs[id])
+          .map((id) => {
+            const t = state.tariffs[id];
+            const selected = id === state.tariffId;
+            return `
+              <div
+                data-tariff-id="${t.id}"
+                class="rounded-2xl border p-4 sm:p-5 flex flex-col justify-between gap-4 transition cursor-pointer ${
+                  selected
+                    ? 'border-emeraldbrand bg-emeraldbrand-50/45 ring-2 ring-emeraldbrand/25 shadow-xs'
+                    : 'border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-2xs'
+                }"
+              >
+                <div class="space-y-2.5">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                        selected ? 'bg-emeraldbrand text-white' : 'bg-slate-100 text-slate-600'
+                      }">
+                        ${escapeHtml(t.badge || '')}
+                      </span>
+                      <h3 class="text-lg font-bold text-graphite mt-1.5">${escapeHtml(t.name)}</h3>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <div class="text-base font-bold text-graphite tabular-nums">${formatRub(t.workPricePerSqm)}</div>
+                      <div class="text-[11px] text-slate-500">работы / м²</div>
+                    </div>
+                  </div>
+
+                  <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(t.shortDesc || '')}</p>
+
+                  <ul class="space-y-1.5 pt-1">
+                    ${(t.highlights || [])
+                      .map(
+                        (h) => `
+                          <li class="flex items-start gap-2 text-xs text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emeraldbrand mt-1.5 shrink-0"></span>
+                            <span>${escapeHtml(h)}</span>
+                          </li>
+                        `
+                      )
+                      .join('')}
+                  </ul>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                  <span class="font-semibold ${selected ? 'text-emeraldbrand-700' : 'text-slate-500'}">
+                    ${selected ? '✓ Выбран этот пакет' : 'Выбрать пакет'}
+                  </span>
+                  <span class="text-slate-400 tabular-nums">×${formatNum(t.workMultiplier)}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      function bootstrapApp() {
+        syncParamInputsFromState();
+        applyWorkCatalogForTariff(state.tariffId, false);
+        bindEvents();
+        setStep(1);
+        initCloudSync();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootstrapApp);
+      } else {
+        bootstrapApp();
+      }
+    })();
+  </script>
+</body>
+</html>
