@@ -110,8 +110,13 @@
           </div>
 
           <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
-            <label for="paramCeilingHeight" class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Высота потолков, м</label>
-            <input id="paramCeilingHeight" type="number" step="0.05" min="2" max="6" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <label for="paramBathroomArea" class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Санузел площадь, м²</label>
+            <input id="paramBathroomArea" type="number" step="0.1" min="0" max="200" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
+            <label for="paramCeilingHeight" class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Высота потолка, м</label>
+            <input id="paramCeilingHeight" type="number" step="0.05" min="1.8" max="10" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
           </div>
 
           <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4">
@@ -912,15 +917,42 @@
       ]
     };
 
+    // Стандартный перечень черновых материалов на квартиру с заданными формулами и расходами
     const ROUGH_MATERIAL_TEMPLATES = [
-      { id: 'rm-primer', name: 'Грунтовка глубокого проникновения (10 л)', unit: 'кан.', qtyFactor: 'primerCans', price: 1150 },
-      { id: 'rm-screed', name: 'Ровнитель / наливной пол (мешок 20 кг)', unit: 'меш.', qtyFactor: 'screedBags', price: 560 },
-      { id: 'rm-putty', name: 'Шпатлёвка полимерная / гипсовая (мешок 20 кг)', unit: 'меш.', qtyFactor: 'puttyBags', price: 790 },
-      { id: 'rm-plaster', name: 'Штукатурка цементная / гипсовая (мешок 30 кг)', unit: 'меш.', qtyFactor: 'plasterBags', price: 590 },
-      { id: 'rm-hydro', name: 'Гидроизоляция обмазочная для санузла (12 кг)', unit: 'шт.', qtyFactor: 'hydroPacks', price: 2450 },
-      { id: 'rm-tile-glue', name: 'Клей плиточный усиленный для керамогранита (мешок 25 кг)', unit: 'меш.', qtyFactor: 'tileGlueBags', price: 690 },
-      { id: 'rm-gkl', name: 'Лист ГКЛВ влагостойкий / профиль для коробов', unit: 'компл.', qtyFactor: 'gklSets', price: 1850 },
-      { id: 'rm-consumables', name: 'Расходники (лента, маяки, саморезы, плёнка, мешки)', unit: 'компл.', qtyFactor: 'consumableSets', price: 2900 }
+      { id: 'rm-primer-10l', name: 'Грунтовка, 1 банка 10 л (1 банка на 25 м²)', unit: 'банк.', qtyFactor: 'primerCans10l', price: 1202 },
+      { id: 'rm-corner-profile', name: 'Профиль углозащитный оцинкованный 20×20×3000 мм', unit: 'шт.', qtyFactor: 'cornerProfiles', price: 167 },
+      { id: 'rm-vetonit-lr', name: 'Шпаклёвка полимерная финишная Vetonit LR+, 20 кг (4 кг на 1 м²)', unit: 'меш. 20 кг', qtyFactor: 'danogipsBuckets', price: 1093 },
+      { id: 'rm-plitonit-glue', name: 'Клей для плитки Плитонит В+ 25 кг (4 кг/м²)', unit: 'меш. 25 кг', qtyFactor: 'plitonitGlueBags', price: 940 },
+      { id: 'rm-crown-68', name: 'Коронка по керамограниту 68 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 1100 },
+      { id: 'rm-crown-28', name: 'Коронка по керамограниту 28 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 630 },
+      { id: 'rm-crown-32', name: 'Коронка по керамограниту 32 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 700 },
+      { id: 'rm-crown-115', name: 'Коронка по керамограниту 115 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 1850 },
+      { id: 'rm-notched-trowel', name: 'Шпатель зубчатый Marta 10×10 мм 300 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 200 },
+      { id: 'rm-spike-shoes', name: 'Подошва для наливных полов, высота шипов 25–40 мм', unit: 'шт.', qtyFactor: 'onePerApt', price: 1230 },
+      { id: 'rm-floor-marker', name: 'Маяк реперный для пола Vetonit Floor level marker (1 шт. на 2 м²)', unit: 'шт.', qtyFactor: 'floorMarkers', price: 45 },
+      { id: 'rm-blades-yoko', name: 'Лезвия для ножей Yoko 18 мм (3 пачки на 1 квартиру)', unit: 'пач.', qtyFactor: 'threePerApt', price: 139 },
+      { id: 'rm-trash-bags', name: 'Мешки для мусора (100 шт. на 1 квартиру)', unit: 'компл. 100 шт.', qtyFactor: 'onePerApt', price: 30 },
+      { id: 'rm-bucket-20l', name: 'Ведро для строительных работ 20 л пластмасса (2 шт. на квартиру)', unit: 'шт.', qtyFactor: 'twoPerApt', price: 270 },
+      { id: 'rm-roller-tray-brush', name: 'Валик плюс кювета, кисть флейцевая 50 (4 шт. на квартиру)', unit: 'компл.', qtyFactor: 'fourPerApt', price: 457 },
+      { id: 'rm-mixer-sand', name: 'Миксер для песчано-гравийных смесей 60×400 мм Yoko (1 шт. на квартиру)', unit: 'шт.', qtyFactor: 'onePerApt', price: 300 },
+      { id: 'rm-mixer-paint', name: 'Миксер для красок 60×400 мм Yoko (1 шт. на квартиру)', unit: 'шт.', qtyFactor: 'onePerApt', price: 270 },
+      { id: 'rm-svp-clip', name: 'Ворота Плитонит 100 шт. СВП (100 шт. на 20 м²)', unit: 'уп. 100 шт.', qtyFactor: 'svpClipsPacks', price: 426 },
+      { id: 'rm-svp-wedge', name: 'Клин Плитонит 100 шт. СВП (100 шт. на 40 м²)', unit: 'уп. 100 шт.', qtyFactor: 'svpWedgesPacks', price: 470 },
+      { id: 'rm-self-leveling-25kg', name: 'Наливной пол, мешок 25 кг (расход 18 кг/м²)', unit: 'меш. 25 кг', qtyFactor: 'selfLevelingBags25kg', price: 954 },
+      { id: 'rm-masking-tape', name: 'Скотч малярный (1 шт. на 10 м²)', unit: 'шт.', qtyFactor: 'maskingTapeRolls', price: 176 },
+      { id: 'rm-rotband-25kg', name: 'Штукатурка гипсовая 10 кг/м² при 10 мм, 25 кг Ротбанд', unit: 'меш. 25 кг', qtyFactor: 'rotbandBags25kg', price: 690 },
+      { id: 'rm-foam', name: 'Пена монтажная (3 шт. на квартиру)', unit: 'шт.', qtyFactor: 'threePerApt', price: 1050 },
+      { id: 'rm-prof-60-27', name: 'Профиль 60/27/3000 (10 шт. на квартиру)', unit: 'шт.', qtyFactor: 'tenPerApt', price: 342 },
+      { id: 'rm-prof-27-28', name: 'Профиль 27/28/3000 (10 шт. на квартиру)', unit: 'шт.', qtyFactor: 'tenPerApt', price: 245 },
+      { id: 'rm-hanger', name: 'Подвес прямой (20 шт. на квартиру)', unit: 'шт.', qtyFactor: 'twentyPerApt', price: 23 },
+      { id: 'rm-dowel-6x40', name: 'Дюбель 6×40 (250 шт. на квартиру)', unit: 'шт.', qtyFactor: 'dowel250PerApt', price: 4 },
+      { id: 'rm-screw-mm-13', name: 'Саморез металл/металл 13 мм (250 шт. на квартиру)', unit: 'шт.', qtyFactor: 'screws250PerApt', price: 3 },
+      { id: 'rm-gklv-12-5', name: 'ГКЛ 12,5 мм влагостойкий (4 шт. на квартиру)', unit: 'лист', qtyFactor: 'fourPerApt', price: 896 },
+      { id: 'rm-acrylic-sealant', name: 'Герметик акриловый белый (1 шт. на квартиру)', unit: 'шт.', qtyFactor: 'onePerApt', price: 670 },
+      { id: 'rm-sanitary-sealant', name: 'Герметик санитарный белый (1 шт. на квартиру)', unit: 'шт.', qtyFactor: 'onePerApt', price: 750 },
+      { id: 'rm-knauf-beacon', name: 'Профиль маячковый Кнауф 23×10×3000 мм оцинкованный (1 шт. на 60 см по стенам)', unit: 'шт.', qtyFactor: 'knaufBeacons', price: 114 },
+      { id: 'rm-screw-gkl-25', name: 'Саморезы ГКЛ/металл 25 мм (250 шт. на 1 квартиру)', unit: 'шт.', qtyFactor: 'screws250PerApt', price: 3 },
+      { id: 'rm-delivery-unload', name: 'Доставка и разгрузка материала (15 000 ₽ на 1 квартиру)', unit: 'компл.', qtyFactor: 'onePerApt', price: 15000 }
     ];
 
     const RAL_PALETTE = [
@@ -1690,6 +1722,7 @@
         livingArea: 36,
         roomsCount: 2,
         bathroomsCount: 2,
+        bathroomArea: 8.4,
         ceilingHeight: 2.75,
         doorsCount: 5
       },
@@ -1850,38 +1883,45 @@
       const p = state.params;
       const totalArea = Math.max(5, Number(p.totalArea) || 0);
       const livingArea = Math.max(0, Math.min(totalArea, Number(p.livingArea) || 0));
-      const bathrooms = Math.max(0, Number(p.bathroomsCount) || 0);
+      const explicitBathArea = Math.max(0, Number(p.bathroomArea) || 0);
+      const bathrooms = explicitBathArea > 0
+        ? Math.max(1, Math.round(explicitBathArea / 4.2))
+        : Math.max(1, Math.round((totalArea * 0.08) / 4.2));
       const rooms = Math.max(0, Number(p.roomsCount) || 0);
       const height = Math.max(2, Number(p.ceilingHeight) || 2.7);
       const doors = Math.max(0, Number(p.doorsCount) || 0);
 
-      const wetFloor = round1(Math.max(bathrooms * 4.2, totalArea * 0.08));
+      const wetFloor = explicitBathArea > 0
+        ? round1(explicitBathArea)
+        : round1(Math.max(bathrooms * 4.2, totalArea * 0.08));
       const hallwayFloor = round1(Math.max(4.5, totalArea * 0.11));
       const dryFloor = round1(Math.max(0, totalArea - wetFloor));
       const livingFloor = round1(Math.max(0, dryFloor - hallwayFloor));
       const perimeter = round1(Math.sqrt(totalArea) * 4 * 1.15);
-      const walls = round1(Math.max(0, perimeter * height - doors * 1.8));
-      const wetWalls = round1(bathrooms * 14.5 * (height / 2.7));
-      const accentWall = round1(bathrooms * 3.6);
+      // Площадь стен без санузла считается как жилая площадь, умноженная на высоту потолка
+      const walls = round1(Math.max(0, livingArea * height));
+      // Укладка керамогранита на стены и все работы по стенам санузла: (площадь санузла × высота потолка) + 70%
+      const wetWalls = round1(Math.max(0, wetFloor * height * 1.7));
+      const accentWall = round1(Math.max(1, bathrooms) * 3.6);
       const wetWallsMain = round1(Math.max(0, wetWalls - accentWall));
       const wetTotal = round1(wetFloor + wetWalls);
 
-      const rateMultMap = {
-        standard: 1.0,
-        comfort: 1.1,
-        comfort_plus: 1.25,
-        premium: 1.35
-      };
-      const mult = rateMultMap[state.tariffId] || 1.0;
-
-      const primerCans = Math.max(1, Math.ceil(((walls + wetWalls + totalArea) * mult) / 75));
-      const screedBags = Math.max(1, Math.ceil((totalArea * 3.5) / 20));
-      const puttyBags = Math.max(1, Math.ceil((walls * 0.55 * mult) / 20));
-      const plasterBags = Math.max(1, Math.ceil(((walls * 0.35 + wetWalls * 0.8) * mult) / 30));
-      const hydroPacks = Math.max(1, Math.ceil((wetFloor * 1.4) / 10));
-      const tileGlueBags = Math.max(1, Math.ceil((wetTotal * 4.8) / 25));
-      const gklSets = Math.max(1, bathrooms + (state.tariffId === 'comfort_plus' || state.tariffId === 'premium' ? 1 : 0));
-      const consumableSets = Math.max(1, Math.ceil(totalArea / 35));
+      // Объёмы и расходы черновых материалов по стандарту на квартиру
+      const totalSurfaceArea = round1(walls + wetWalls + totalArea);
+      const primerCans10l = Math.max(1, Math.ceil(totalSurfaceArea / 25));
+      const cornerProfiles = Math.max(1, Math.ceil((walls + wetWalls) / 12));
+      const danogipsBuckets = Math.max(1, Math.ceil((walls * 4) / 20));
+      const plitonitGlueBags = Math.max(1, Math.ceil((wetTotal * 4) / 25));
+      const floorMarkers = Math.max(1, Math.ceil(totalArea / 2));
+      const svpClipsPacks = Math.max(1, Math.ceil(wetTotal / 20));
+      const svpWedgesPacks = Math.max(1, Math.ceil(wetTotal / 40));
+      const selfLevelingBags25kg = Math.max(1, Math.ceil((totalArea * 18) / 25));
+      const maskingTapeRolls = Math.max(1, Math.ceil(totalSurfaceArea / 10));
+      // Гипсовая штукатурка 10 кг/м² при 10 мм, мешок 25 кг Ротбанд
+      const rotbandBags25kg = Math.max(1, Math.ceil(((walls + wetWalls) * 10) / 25));
+      // Профиль маячковый Кнауф 23×10×3000 мм: 1 шт. на каждые 0.6 м (60 см) длины стен
+      const estimatedWallLengthMeters = Math.max(3, (walls + wetWalls) / height);
+      const knaufBeacons = Math.max(1, Math.ceil(estimatedWallLengthMeters / 0.6));
 
       return {
         totalArea,
@@ -1900,14 +1940,25 @@
         accentWall,
         wetWallsMain,
         wetTotal,
-        primerCans,
-        screedBags,
-        puttyBags,
-        plasterBags,
-        hydroPacks,
-        tileGlueBags,
-        gklSets,
-        consumableSets
+        onePerApt: 1,
+        twoPerApt: 2,
+        threePerApt: 3,
+        fourPerApt: 4,
+        tenPerApt: 10,
+        twentyPerApt: 20,
+        dowel250PerApt: 250,
+        screws250PerApt: 250,
+        primerCans10l,
+        cornerProfiles,
+        danogipsBuckets,
+        plitonitGlueBags,
+        floorMarkers,
+        svpClipsPacks,
+        svpWedgesPacks,
+        selfLevelingBags25kg,
+        maskingTapeRolls,
+        rotbandBags25kg,
+        knaufBeacons
       };
     }
 
@@ -2207,7 +2258,7 @@
         { id: 'paramTotalArea', key: 'totalArea' },
         { id: 'paramLivingArea', key: 'livingArea' },
         { id: 'paramRoomsCount', key: 'roomsCount' },
-        { id: 'paramBathroomsCount', key: 'bathroomsCount' },
+        { id: 'paramBathroomArea', key: 'bathroomArea' },
         { id: 'paramCeilingHeight', key: 'ceilingHeight' },
         { id: 'paramDoorsCount', key: 'doorsCount' }
       ];
@@ -3853,7 +3904,7 @@
         { id: 'paramTotalArea', key: 'totalArea' },
         { id: 'paramLivingArea', key: 'livingArea' },
         { id: 'paramRoomsCount', key: 'roomsCount' },
-        { id: 'paramBathroomsCount', key: 'bathroomsCount' },
+        { id: 'paramBathroomArea', key: 'bathroomArea' },
         { id: 'paramCeilingHeight', key: 'ceilingHeight' },
         { id: 'paramDoorsCount', key: 'doorsCount' }
       ];
@@ -3862,7 +3913,8 @@
         const input = document.getElementById(id);
         if (!input) return;
         input.addEventListener('input', () => {
-          state.params[key] = Number(input.value) || 0;
+          const val = Number(input.value) || 0;
+          state.params[key] = val;
         });
       });
 
@@ -3872,6 +3924,7 @@
           livingArea: 36,
           roomsCount: 2,
           bathroomsCount: 2,
+          bathroomArea: 8.4,
           ceilingHeight: 2.75,
           doorsCount: 5
         };
